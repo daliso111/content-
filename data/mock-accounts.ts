@@ -1,0 +1,56 @@
+import type { DemoSocialAccount } from "@/types";
+
+export const socialAccounts: DemoSocialAccount[] = [
+  {
+    id: "acc_fb",
+    platform: "facebook",
+    accountName: "Northwind Agency",
+    handle: "northwind.agency",
+    status: "connected",
+    followers: 24_800,
+    lastSyncedAt: "2026-08-05T07:00:00Z",
+  },
+  {
+    id: "acc_ig",
+    platform: "instagram",
+    accountName: "Northwind Agency",
+    handle: "northwind.agency",
+    status: "connected",
+    followers: 41_200,
+    lastSyncedAt: "2026-08-05T07:00:00Z",
+  },
+  {
+    id: "acc_li",
+    platform: "linkedin",
+    accountName: "Northwind Marketing",
+    handle: "northwind-marketing",
+    status: "reconnect_required",
+    followers: 12_540,
+    lastSyncedAt: "2026-07-28T09:30:00Z",
+  },
+  {
+    id: "acc_tt",
+    platform: "tiktok",
+    accountName: "Northwind",
+    handle: "northwind",
+    status: "connected",
+    followers: 88_900,
+    lastSyncedAt: "2026-08-05T06:45:00Z",
+  },
+  {
+    id: "acc_yt",
+    platform: "youtube",
+    accountName: "Northwind Studio",
+    handle: "northwindstudio",
+    status: "disconnected",
+  },
+  {
+    id: "acc_x",
+    platform: "x",
+    accountName: "Northwind",
+    handle: "northwind",
+    status: "connected",
+    followers: 9_320,
+    lastSyncedAt: "2026-08-05T07:05:00Z",
+  },
+];

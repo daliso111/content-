@@ -1,0 +1,95 @@
+import type { ActivityLog, MockNotification } from "@/types";
+
+export const notifications: MockNotification[] = [
+  {
+    id: "ntf_1",
+    title: "Approval requested",
+    description: "Kwame submitted “Product demo behind the scenes” for review.",
+    createdAt: "2026-08-05T08:05:00Z",
+    read: false,
+    type: "approval",
+  },
+  {
+    id: "ntf_2",
+    title: "Post published",
+    description: "“Webinar thank-you” went live on LinkedIn and Facebook.",
+    createdAt: "2026-08-05T07:10:00Z",
+    read: false,
+    type: "publish",
+  },
+  {
+    id: "ntf_3",
+    title: "Publishing failed",
+    description: "“Weekend inspo” failed to publish — Instagram token expired.",
+    createdAt: "2026-08-04T10:01:00Z",
+    read: false,
+    type: "failed",
+  },
+  {
+    id: "ntf_4",
+    title: "New team member",
+    description: "Liam Walsh was invited as a Viewer.",
+    createdAt: "2026-08-03T16:20:00Z",
+    read: true,
+    type: "team",
+  },
+  {
+    id: "ntf_5",
+    title: "Weekly report ready",
+    description: "Your performance summary for last week is available.",
+    createdAt: "2026-08-03T09:00:00Z",
+    read: true,
+    type: "system",
+  },
+];
+
+export const activityLogs: ActivityLog[] = [
+  {
+    id: "act_1",
+    actor: "Sofia Ramirez",
+    action: "scheduled",
+    target: "Summer Launch teaser",
+    createdAt: "2026-08-05T08:20:00Z",
+    type: "schedule",
+  },
+  {
+    id: "act_2",
+    actor: "Priya Nair",
+    action: "approved",
+    target: "Q3 Campaign first look",
+    createdAt: "2026-08-05T06:30:00Z",
+    type: "approve",
+  },
+  {
+    id: "act_3",
+    actor: "System",
+    action: "published",
+    target: "Webinar thank-you",
+    createdAt: "2026-07-31T15:00:00Z",
+    type: "publish",
+  },
+  {
+    id: "act_4",
+    actor: "Kwame Boateng",
+    action: "created",
+    target: "New reel: monthly content plan",
+    createdAt: "2026-08-05T08:00:00Z",
+    type: "create",
+  },
+  {
+    id: "act_5",
+    actor: "Daniel Mensah",
+    action: "connected",
+    target: "TikTok account",
+    createdAt: "2026-08-04T14:00:00Z",
+    type: "connect",
+  },
+  {
+    id: "act_6",
+    actor: "Amara Okafor",
+    action: "commented on",
+    target: "Summer Launch teaser",
+    createdAt: "2026-08-02T10:00:00Z",
+    type: "comment",
+  },
+];

@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * PostFlow design tokens.
+ * Values are raw "R G B" triplets so Tailwind can apply opacity modifiers.
+ * A dark theme can be enabled later by toggling the `.dark` class on <html>.
+ */
+:root {
+  /* System font stack — no external font fetch, so builds work offline. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+
+  --color-canvas: 247 248 250; /* soft grey page background */
+  --color-surface: 255 255 255; /* cards / panels */
+  --color-surface-muted: 248 250 252;
+  --color-border: 229 232 238;
+  --color-border-strong: 209 214 224;
+
+  --color-ink: 15 23 42; /* dark navy text */
+  --color-ink-muted: 71 85 105;
+  --color-ink-subtle: 148 163 184;
+
+  --color-brand: 79 70 229; /* indigo-600 */
+  --color-brand-hover: 67 56 202; /* indigo-700 */
+  --color-brand-soft: 238 238 252;
+  --color-brand-text: 67 56 202;
+
+  --color-success: 22 163 74;
+  --color-success-soft: 231 247 237;
+  --color-warning: 202 138 4;
+  --color-warning-soft: 253 247 227;
+  --color-danger: 220 38 38;
+  --color-danger-soft: 253 235 235;
+  --color-info: 37 99 235;
+  --color-info-soft: 233 240 254;
+}
+
+.dark {
+  --color-canvas: 13 17 28;
+  --color-surface: 20 26 40;
+  --color-surface-muted: 26 33 50;
+  --color-border: 39 47 66;
+  --color-border-strong: 55 65 88;
+
+  --color-ink: 237 240 247;
+  --color-ink-muted: 165 176 196;
+  --color-ink-subtle: 113 125 148;
+
+  --color-brand: 129 122 246;
+  --color-brand-hover: 149 143 250;
+  --color-brand-soft: 40 41 74;
+  --color-brand-text: 179 174 250;
+
+  --color-success: 74 197 122;
+  --color-success-soft: 22 43 33;
+  --color-warning: 234 179 8;
+  --color-warning-soft: 46 39 16;
+  --color-danger: 248 113 113;
+  --color-danger-soft: 51 26 26;
+  --color-info: 96 165 250;
+  --color-info-soft: 23 37 63;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-canvas text-ink antialiased;
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+  /* Consistent, visible focus ring for keyboard users */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand/60 ring-offset-2 ring-offset-canvas;
+  }
+  /* Thin, unobtrusive scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border-strong;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-subtle;
+    background-clip: content-box;
+  }
+}
+
+@layer components {
+  /* Shared control base used by buttons and inputs for consistent sizing */
+  .field {
+    @apply w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-ink
+      placeholder:text-ink-subtle transition-colors
+      focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25
+      disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-subtle;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+}
+
+/* Hide number-input spinners for a cleaner look */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
