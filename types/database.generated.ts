@@ -752,6 +752,7 @@ export type Database = {
         Row: {
           ambiguous_result: boolean
           attempt_count: number
+          failure_count: number
           available_at: string
           completed_at: string | null
           created_at: string
@@ -780,6 +781,7 @@ export type Database = {
         Insert: {
           ambiguous_result?: boolean
           attempt_count?: number
+          failure_count?: number
           available_at?: string
           completed_at?: string | null
           created_at?: string
@@ -808,6 +810,7 @@ export type Database = {
         Update: {
           ambiguous_result?: boolean
           attempt_count?: number
+          failure_count?: number
           available_at?: string
           completed_at?: string | null
           created_at?: string
@@ -1170,6 +1173,10 @@ export type Database = {
         Args: { p_batch_size?: number; p_visibility_seconds?: number }
         Returns: Json
       }
+      clear_tiktok_submission_start: {
+        Args: { p_publishing_job_id: string }
+        Returns: undefined
+      }
       complete_meta_connections: {
         Args: {
           p_connections: Json
@@ -1294,6 +1301,14 @@ export type Database = {
         Args: { p_actor_id: string; p_social_account_id: string }
         Returns: Json
       }
+      get_tiktok_creator_credential: {
+        Args: {
+          p_actor_id: string
+          p_social_account_id: string
+          p_workspace_id: string
+        }
+        Returns: Json
+      }
       get_workspace_invitation_details: {
         Args: { p_invitation_id: string; p_token?: string }
         Returns: Json
@@ -1334,6 +1349,14 @@ export type Database = {
       mark_notifications_read: {
         Args: { p_notification_ids: string[] }
         Returns: number
+      }
+      record_tiktok_publish_status: {
+        Args: {
+          p_fail_reason: string | null
+          p_provider_status: string
+          p_publishing_job_id: string
+        }
+        Returns: undefined
       }
       mark_publishing_account_unusable: {
         Args: {
@@ -1396,6 +1419,14 @@ export type Database = {
       revoke_workspace_invitation: {
         Args: { p_invitation_id: string; p_message?: string }
         Returns: Json
+      }
+      start_tiktok_publish_submission: {
+        Args: { p_publishing_job_id: string }
+        Returns: undefined
+      }
+      store_tiktok_publish_id: {
+        Args: { p_publish_id: string; p_publishing_job_id: string }
+        Returns: undefined
       }
       store_youtube_upload_session: {
         Args: { p_publishing_job_id: string; p_session_url: string }
@@ -1478,6 +1509,20 @@ export type Database = {
           p_username: string
         }
         Returns: Json
+      }
+      update_tiktok_publishing_credential: {
+        Args: {
+          p_access_token_iv: string
+          p_encrypted_access_token: string
+          p_encrypted_refresh_token: string
+          p_granted_scopes: string[]
+          p_refresh_token_expires_at: string
+          p_refresh_token_iv: string
+          p_social_account_id: string
+          p_token_expires_at: string
+          p_token_type: string
+        }
+        Returns: undefined
       }
       update_workspace_member_role: {
         Args: {
@@ -1628,11 +1673,13 @@ export type Database = {
         | "instagram_image"
         | "instagram_reel"
         | "youtube_video"
+        | "tiktok_video"
       social_account_type:
         | "facebook_page"
         | "instagram_business"
         | "instagram_creator"
         | "youtube_channel"
+        | "tiktok_user"
       social_connection_status:
         | "pending"
         | "connected"
@@ -1888,12 +1935,14 @@ export const Constants = {
         "instagram_image",
         "instagram_reel",
         "youtube_video",
+        "tiktok_video",
       ],
       social_account_type: [
         "facebook_page",
         "instagram_business",
         "instagram_creator",
         "youtube_channel",
+        "tiktok_user",
       ],
       social_connection_status: [
         "pending",

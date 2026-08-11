@@ -47,7 +47,20 @@ export function validateClaim(claim: ClaimedPublishingMessage): void {
         "Reconnect the YouTube channel and grant upload permission.",
       );
     }
-  } else {
+  } else if (account.platform === "tiktok") {
+    if (!credential.encryptedRefreshToken || !credential.refreshTokenIv) {
+      throw new PublishingError(
+        "TIKTOK_ACCOUNT_REAUTH_REQUIRED",
+        "Reconnect TikTok before publishing.",
+      );
+    }
+    if (!credential.grantedScopes.includes("video.publish")) {
+      throw new PublishingError(
+        "TIKTOK_PUBLISHING_PERMISSION_REQUIRED",
+        "Reconnect TikTok and grant publishing permission.",
+      );
+    }
+  } else if (account.platform === "facebook" || account.platform === "instagram") {
     const expiry = credential.expiresAt ?? account.tokenExpiresAt;
     if (expiry && new Date(expiry).getTime() <= Date.now()) {
       throw new PublishingError(
@@ -62,6 +75,11 @@ export function validateClaim(claim: ClaimedPublishingMessage): void {
         "Reconnect the account and grant the required publishing permissions.",
       );
     }
+  } else {
+    throw new PublishingError(
+      "UNSUPPORTED_PLATFORM",
+      "The publishing destination platform is unsupported.",
+    );
   }
   const snapshot = job.payload_snapshot;
   if (

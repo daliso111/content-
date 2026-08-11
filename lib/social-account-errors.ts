@@ -29,6 +29,18 @@ const SOCIAL_ACCOUNT_ERROR_MESSAGES: Record<string, string> = {
   YOUTUBE_REAUTHORIZATION_REQUIRED: "This YouTube channel must be reauthorized.",
   YOUTUBE_NO_CHANNEL: "Google did not return a YouTube channel for this account.",
   YOUTUBE_PROVIDER_UNAVAILABLE: "YouTube is temporarily unavailable. Please try again.",
+  TIKTOK_AUTHORIZATION_CANCELLED: "TikTok authorization was cancelled.",
+  TIKTOK_CONFIGURATION_MISSING: "TikTok connections are not configured yet.",
+  TIKTOK_TOKEN_EXCHANGE_FAILED: "TikTok could not complete authorization. Please try again.",
+  TIKTOK_REFRESH_TOKEN_REQUIRED: "TikTok did not provide renewable access. Reconnect the account.",
+  TIKTOK_TOKEN_RESPONSE_INVALID: "TikTok returned an invalid authorization response. Please try again.",
+  TIKTOK_REQUIRED_SCOPE_MISSING: "TikTok did not grant basic account access. Reconnect and approve the requested permission.",
+  TIKTOK_PROFILE_DISCOVERY_FAILED: "TikTok could not return the account profile. Please try again.",
+  TIKTOK_OPEN_ID_MISMATCH: "TikTok authorized a different account. The existing connection was left unchanged.",
+  TIKTOK_CONNECTION_NO_LONGER_VALID: "This TikTok connection changed or is no longer connected. Refresh the page and try again.",
+  TIKTOK_REAUTHORIZATION_REQUIRED: "This TikTok account must be reauthorized.",
+  TIKTOK_PROVIDER_UNAVAILABLE: "TikTok is temporarily unavailable. Please try again.",
+  TIKTOK_REVOCATION_FAILED: "PostFlow disconnected locally, but TikTok authorization may still be active.",
   RATE_LIMITED: "Too many connection attempts. Wait a minute and try again.",
   UNSAFE_RETURN_PATH: "The requested return location is not allowed.",
   INVALID_REQUEST: "The social account request was invalid.",
@@ -71,5 +83,29 @@ const YOUTUBE_CALLBACK_ERROR_MESSAGES: Record<string, string> = {
 export function youtubeCallbackErrorMessage(value: string): string {
   const code = value.trim().replace(/[^a-z0-9_]/gi, "").toUpperCase();
   return YOUTUBE_CALLBACK_ERROR_MESSAGES[code]
+    ?? SOCIAL_ACCOUNT_ERROR_MESSAGES.INTERNAL_ERROR;
+}
+
+const TIKTOK_CALLBACK_ERROR_MESSAGES: Record<string, string> = {
+  AUTHORIZATION_CANCELLED: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_AUTHORIZATION_CANCELLED,
+  STATE_INVALID: SOCIAL_ACCOUNT_ERROR_MESSAGES.INVALID_OAUTH_STATE,
+  STATE_EXPIRED: SOCIAL_ACCOUNT_ERROR_MESSAGES.OAUTH_STATE_EXPIRED,
+  STATE_ALREADY_USED: SOCIAL_ACCOUNT_ERROR_MESSAGES.OAUTH_STATE_ALREADY_USED,
+  TOKEN_EXCHANGE_FAILED: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_TOKEN_EXCHANGE_FAILED,
+  REQUIRED_SCOPE_MISSING: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_REQUIRED_SCOPE_MISSING,
+  TOKEN_RESPONSE_INVALID: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_TOKEN_RESPONSE_INVALID,
+  REFRESH_TOKEN_MISSING: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_REFRESH_TOKEN_REQUIRED,
+  PROFILE_DISCOVERY_FAILED: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_PROFILE_DISCOVERY_FAILED,
+  OPEN_ID_MISMATCH: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_OPEN_ID_MISMATCH,
+  CONNECTION_NO_LONGER_VALID: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_CONNECTION_NO_LONGER_VALID,
+  ENCRYPTION_FAILED: "PostFlow could not secure the TikTok credential. Please try again.",
+  UPSERT_FAILED: "PostFlow could not save the TikTok connection. Please try again.",
+  CONFIGURATION_FAILED: SOCIAL_ACCOUNT_ERROR_MESSAGES.TIKTOK_CONFIGURATION_MISSING,
+  CALLBACK_FAILED: SOCIAL_ACCOUNT_ERROR_MESSAGES.INTERNAL_ERROR,
+};
+
+export function tiktokCallbackErrorMessage(value: string): string {
+  const code = value.trim().replace(/[^a-z0-9_]/gi, "").toUpperCase();
+  return TIKTOK_CALLBACK_ERROR_MESSAGES[code]
     ?? SOCIAL_ACCOUNT_ERROR_MESSAGES.INTERNAL_ERROR;
 }

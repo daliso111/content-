@@ -25,14 +25,18 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { ConnectionBadge } from "@/components/ui/StatusBadge";
 import { useToast } from "@/components/ui/Toast";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
-import { callbackErrorMessage, youtubeCallbackErrorMessage } from "@/lib/social-account-errors";
-import { socialAccountIdentity } from "@/lib/social-account-presentation";
+import { callbackErrorMessage, tiktokCallbackErrorMessage, youtubeCallbackErrorMessage } from "@/lib/social-account-errors";
+import {
+  connectionProviderForPlatform,
+  socialAccountIdentity,
+  tiktokPublishingCapability,
+} from "@/lib/social-account-presentation";
 import { socialAccountService } from "@/lib/services/social-account-service";
 import { listRecentPublishingResults } from "@/lib/services/publishing-service";
 import { formatDate, formatRelative } from "@/lib/utils";
 import type { MetaConnectionOption, PublishingJob, SocialAccountView } from "@/types";
 
-const UNSUPPORTED = ["linkedin", "tiktok", "x"] as const;
+const UNSUPPORTED = ["linkedin", "x"] as const;
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Social accounts could not be loaded.";
@@ -90,9 +94,10 @@ export default function AccountsPage() {
     const params = new URLSearchParams(window.location.search);
     const callbackError = params.get("connection_error");
     const youtubeError = params.get("youtube_error");
+    const tiktokError = params.get("tiktok_error");
     const callbackSuccess = params.get("connection_success");
     const pendingSession = params.get("meta_session");
-    if (!callbackError && !youtubeError && !callbackSuccess && !pendingSession) return;
+    if (!callbackError && !youtubeError && !tiktokError && !callbackSuccess && !pendingSession) return;
     router.replace("/dashboard/accounts", { scroll: false });
     if (callbackError) {
       toast.error("Connection not completed", callbackErrorMessage(callbackError));
@@ -102,10 +107,30 @@ export default function AccountsPage() {
       toast.error("YouTube connection not completed", youtubeCallbackErrorMessage(youtubeError));
       return;
     }
+    if (tiktokError) {
+      toast.error("TikTok connection not completed", tiktokCallbackErrorMessage(tiktokError));
+      return;
+    }
     if (callbackSuccess) {
-      toast.success(callbackSuccess.startsWith("youtube:")
-        ? "YouTube channel connected"
-        : "Meta connection completed");
+      if (callbackSuccess.startsWith("tiktok-publishing-authorized:")) {
+        toast.success(
+          "TikTok publishing authorization enabled",
+          "TikTok video publishing is enabled for this account.",
+        );
+      } else if (callbackSuccess.startsWith("tiktok-publishing-required:")) {
+        toast.info(
+          "TikTok account remains connected",
+          "TikTok did not grant publishing permission. You can try again when ready.",
+        );
+      } else {
+        toast.success(
+          callbackSuccess.startsWith("youtube:")
+            ? "YouTube channel connected"
+            : callbackSuccess.startsWith("tiktok:")
+            ? "TikTok account connected"
+            : "Meta connection completed",
+        );
+      }
       void loadAccounts();
     }
     if (pendingSession) {
@@ -143,6 +168,38 @@ export default function AccountsPage() {
       window.location.assign(authorizationUrl);
     } catch (error) {
       toast.error("Could not start YouTube connection", errorMessage(error));
+      setBusyId(null);
+    }
+  };
+
+  const startTikTokConnection = async () => {
+    if (!activeWorkspace) return;
+    setBusyId("connect-tiktok");
+    setProviderPickerOpen(false);
+    try {
+      const { authorizationUrl } = await socialAccountService.startTikTokConnection(activeWorkspace.id);
+      window.location.assign(authorizationUrl);
+    } catch (error) {
+      toast.error("Could not start TikTok connection", errorMessage(error));
+      setBusyId(null);
+    }
+  };
+
+  const startTikTokPublishingUpgrade = async (view: SocialAccountView) => {
+    if (!activeWorkspace) return;
+    setBusyId(view.account.id);
+    try {
+      const { authorizationUrl } = await socialAccountService
+        .startTikTokPublishingUpgrade(
+          activeWorkspace.id,
+          view.account.id,
+        );
+      window.location.assign(authorizationUrl);
+    } catch (error) {
+      toast.error(
+        "Could not start TikTok publishing authorization",
+        errorMessage(error),
+      );
       setBusyId(null);
     }
   };
@@ -207,6 +264,7 @@ export default function AccountsPage() {
 
   const activeCount = accounts.filter(({ account }) => account.connection_status === "connected").length;
   const hasYouTubeAccount = accounts.some(({ account }) => account.platform === "youtube");
+  const hasTikTokAccount = accounts.some(({ account }) => account.platform === "tiktok");
   const pageNames = new Map(
     options.filter((option) => option.platform === "facebook")
       .map((option) => [option.platformAccountId, option.accountName]),
@@ -258,7 +316,7 @@ export default function AccountsPage() {
         <EmptyState
           icon={Link2}
           title="No social accounts connected"
-          description="Connect Meta destinations or a YouTube channel to get started."
+          description="Connect a Meta destination, YouTube channel, or TikTok account to get started."
           action={canManage ? <Button onClick={() => setProviderPickerOpen(true)}>Connect account</Button> : undefined}
         />
       ) : (
@@ -269,8 +327,15 @@ export default function AccountsPage() {
               view={view}
               canManage={Boolean(canManage)}
               busy={busyId === view.account.id}
-              onReconnect={view.account.platform === "youtube" ? startYouTubeConnection : startConnection}
+              onReconnect={connectionProviderForPlatform(view.account.platform) === "youtube"
+                ? startYouTubeConnection
+                : connectionProviderForPlatform(view.account.platform) === "tiktok"
+                ? startTikTokConnection
+                : startConnection}
               onRefresh={() => refreshAccount(view)}
+              onEnableTikTokPublishing={view.account.platform === "tiktok"
+                ? () => startTikTokPublishingUpgrade(view)
+                : undefined}
               onDisconnect={() => setToDisconnect(view)}
               publishingJobs={publishingJobs.filter((job) => job.social_account_id === view.account.id)}
             />
@@ -281,7 +346,7 @@ export default function AccountsPage() {
       <section className="space-y-3" aria-labelledby="more-platforms-heading">
         <div>
           <h2 id="more-platforms-heading" className="text-sm font-semibold text-ink">More platforms</h2>
-          <p className="mt-0.5 text-sm text-ink-muted">Connect YouTube now. Additional networks will be added later.</p>
+          <p className="mt-0.5 text-sm text-ink-muted">Connect YouTube or TikTok now. Additional networks will be added later.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {!hasYouTubeAccount && (
@@ -294,6 +359,18 @@ export default function AccountsPage() {
                 </div>
               </div>
               {canManage && <Button size="sm" variant="outline" onClick={startYouTubeConnection}>Connect YouTube</Button>}
+            </Card>
+          )}
+          {!hasTikTokAccount && (
+            <Card className="flex items-center justify-between gap-3 p-4 shadow-none">
+              <div className="flex min-w-0 items-center gap-3">
+                <PlatformIcon platform="tiktok" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-ink">TikTok</p>
+                  <p className="truncate text-xs text-ink-muted">Connect your TikTok account</p>
+                </div>
+              </div>
+              {canManage && <Button size="sm" variant="outline" onClick={startTikTokConnection}>Connect TikTok</Button>}
             </Card>
           )}
           {UNSUPPORTED.map((platform) => (
@@ -322,6 +399,12 @@ export default function AccountsPage() {
             onClick={startConnection}
           />
           <ProviderChoice
+            platform="tiktok"
+            title="TikTok"
+            description="Connect TikTok for video Direct Post publishing."
+            onClick={startTikTokConnection}
+          />
+          <ProviderChoice
             platform="youtube"
             title="YouTube"
             description="Connect a YouTube channel with secure offline access."
@@ -329,7 +412,6 @@ export default function AccountsPage() {
           />
           <ComingSoonChoice title="Pinterest" marker="P" />
           <ProviderChoice platform="linkedin" title="LinkedIn" description="Coming soon" disabled />
-          <ProviderChoice platform="tiktok" title="TikTok" description="Coming soon" disabled />
           <ProviderChoice platform="x" title="X" description="Coming soon" disabled />
         </div>
       </Modal>
@@ -414,6 +496,7 @@ function ConnectedAccountCard({
   busy,
   onReconnect,
   onRefresh,
+  onEnableTikTokPublishing,
   onDisconnect,
   publishingJobs,
 }: {
@@ -422,11 +505,13 @@ function ConnectedAccountCard({
   busy: boolean;
   onReconnect: () => void;
   onRefresh: () => void;
+  onEnableTikTokPublishing?: () => void;
   onDisconnect: () => void;
   publishingJobs: PublishingJob[];
 }) {
   const { account, connectedByName } = view;
   const identity = socialAccountIdentity(account);
+  const tiktokCapability = tiktokPublishingCapability(account);
   const needsReconnect = ["reconnect_required", "expired", "disconnected", "error"].includes(account.connection_status);
   const expiresSoon = account.token_expires_at
     ? new Date(account.token_expires_at).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
@@ -435,7 +520,7 @@ function ConnectedAccountCard({
     ? "Reconnection required"
     : account.token_expires_at
       ? `Expires on ${formatDate(account.token_expires_at)}`
-      : `Expiry not provided by ${account.platform === "youtube" ? "Google" : "Meta"}`;
+      : `Expiry not provided by ${account.platform === "youtube" ? "Google" : account.platform === "tiktok" ? "TikTok" : "Meta"}`;
   const lastSuccess = publishingJobs.find((job) => job.status === "succeeded");
   const recentFailures = publishingJobs.filter((job) => ["failed", "reconciliation_required"].includes(job.status)).length;
 
@@ -472,6 +557,17 @@ function ConnectedAccountCard({
         <p>{connectedByName ? `Connected by ${connectedByName}` : "Connected by a workspace administrator"}</p>
         {account.platform === "youtube" ? (
           <p>YouTube publishing is not enabled yet</p>
+        ) : account.platform === "tiktok" ? (
+          tiktokCapability === "authorized" ? (
+            <div className="space-y-1">
+              <p className="font-medium text-success">TikTok publishing enabled</p>
+              <p>Video Direct Post is available</p>
+            </div>
+          ) : tiktokCapability === "permission_required" ? (
+            <p className="font-medium text-warning">Publishing permission required</p>
+          ) : (
+            <p className="font-medium text-warning">Reconnect required</p>
+          )
         ) : (
           <>
             <p>{lastSuccess?.completed_at ? `Last published ${formatRelative(lastSuccess.completed_at)}` : "No successful publications yet"}</p>
@@ -488,9 +584,22 @@ function ConnectedAccountCard({
               <Link2 className="h-4 w-4" aria-hidden /> Reconnect
             </Button>
           ) : (
-            <Button size="sm" variant="outline" onClick={onRefresh} loading={busy}>
-              <RefreshCw className="h-4 w-4" aria-hidden /> Refresh
-            </Button>
+            <>
+              {tiktokCapability === "permission_required" &&
+                onEnableTikTokPublishing && (
+                <Button
+                  size="sm"
+                  onClick={onEnableTikTokPublishing}
+                  loading={busy}
+                  disabled={busy}
+                >
+                  <ShieldCheck className="h-4 w-4" aria-hidden /> Enable TikTok Publishing
+                </Button>
+              )}
+              <Button size="sm" variant="outline" onClick={onRefresh} loading={busy}>
+                <RefreshCw className="h-4 w-4" aria-hidden /> Refresh
+              </Button>
+            </>
           )}
           {account.connection_status !== "disconnected" && (
             <Button

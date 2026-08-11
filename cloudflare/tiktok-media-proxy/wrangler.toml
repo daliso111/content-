@@ -1,0 +1,11 @@
+name = "towkn-tiktok-media-proxy"
+main = "worker.ts"
+compatibility_date = "2026-08-11"
+workers_dev = false
+
+[[routes]]
+pattern = "media.towkn.com"
+custom_domain = true
+
+[observability]
+enabled = false

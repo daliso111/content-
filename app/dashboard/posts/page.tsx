@@ -524,16 +524,26 @@ function PublishingDetailsModal({ open, loading, currentRevision, jobs, attempts
       {jobs.map(({ job, account }) => <div key={job.id} className="rounded-lg border border-border p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3"><PlatformIcon platform={job.platform} /><div className="min-w-0"><p className="truncate text-sm font-semibold text-ink">{account?.account_name ?? "Unavailable account"}</p><p className="text-xs text-ink-subtle">Revision {job.post_revision} · {job.operation.replaceAll("_", " ")}{!isCurrentRevisionPublishingJob(job, currentRevision) ? " · Historical" : ""}</p></div></div>
-          <span className={cn("rounded-full px-2 py-1 text-xs font-semibold", job.status === "succeeded" ? "bg-success-soft text-success" : ["failed", "reconciliation_required"].includes(job.status) ? "bg-danger-soft text-danger" : "bg-info-soft text-info")}>{job.status.replaceAll("_", " ")}</span>
+          <span className={cn("rounded-full px-2 py-1 text-xs font-semibold", job.status === "succeeded" ? "bg-success-soft text-success" : ["failed", "reconciliation_required"].includes(job.status) ? "bg-danger-soft text-danger" : "bg-info-soft text-info")}>{publishingStatusLabel(job.platform, job.status, job.provider_container_id)}</span>
         </div>
-        <div className="mt-3 grid gap-2 text-xs text-ink-muted sm:grid-cols-2 lg:grid-cols-4"><span>Attempts: {job.attempt_count}/{job.max_attempts}</span><span>Scheduled: {formatDate(job.scheduled_for)}</span><span>Started: {job.started_at ? formatDate(job.started_at) : "Not started"}</span><span>Completed: {job.completed_at ? formatDate(job.completed_at) : "Pending"}</span></div>
+        <div className="mt-3 grid gap-2 text-xs text-ink-muted sm:grid-cols-2 lg:grid-cols-4"><span>Queue steps: {job.attempt_count} · Failures: {job.failure_count}/{job.max_attempts}</span><span>Scheduled: {formatDate(job.scheduled_for)}</span><span>Started: {job.started_at ? formatDate(job.started_at) : "Not started"}</span><span>Completed: {job.completed_at ? formatDate(job.completed_at) : "Pending"}</span></div>
         {job.next_attempt_at && <p className="mt-2 text-xs text-info">Next attempt: {formatDate(job.next_attempt_at)}</p>}
         {job.provider_post_id && <p className="mt-2 break-all text-xs text-ink-muted">Provider ID: {job.provider_post_id}</p>}
         {job.provider_permalink && <a href={job.provider_permalink} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand-text hover:underline">Open verified provider post <ExternalLink className="h-3 w-3" /></a>}
         {job.safe_error_message && <p className="mt-2 rounded-md bg-danger-soft px-2 py-1.5 text-xs text-danger">{job.safe_error_message}</p>}
         {(attempts[job.id] ?? []).length > 0 && <div className="mt-3 border-t border-border pt-3"><p className="mb-2 text-xs font-semibold text-ink">Attempt history</p><div className="space-y-1">{attempts[job.id].map((attempt) => <p key={attempt.id} className="text-xs text-ink-muted">#{attempt.attempt_number} {attempt.phase.replaceAll("_", " ")} · {attempt.outcome.replaceAll("_", " ")}{attempt.safe_error_message ? ` · ${attempt.safe_error_message}` : ""}</p>)}</div></div>}
-        {canManage && isCurrentRevisionPublishingJob(job, currentRevision) && job.status === "failed" && job.retryable && job.attempt_count < job.max_attempts && <Button className="mt-3" size="sm" variant="outline" onClick={() => void onRetry(job.id)} loading={mutating}><RotateCcw className="h-4 w-4" /> Retry destination</Button>}
+        {canManage && isCurrentRevisionPublishingJob(job, currentRevision) && job.status === "failed" && job.retryable && job.failure_count < job.max_attempts && <Button className="mt-3" size="sm" variant="outline" onClick={() => void onRetry(job.id)} loading={mutating}><RotateCcw className="h-4 w-4" /> Retry destination</Button>}
       </div>)}
     </div>}
   </Modal>;
+}
+
+function publishingStatusLabel(platform: string, status: string, providerContainerId: string | null): string {
+  if (platform !== "tiktok") return status.replaceAll("_", " ");
+  if (status === "queued") return "Queued";
+  if (status === "processing") return providerContainerId ? "TikTok processing" : "Submitting to TikTok";
+  if (status === "waiting_provider") return "TikTok processing";
+  if (status === "succeeded") return "Published";
+  if (status === "failed") return "Failed";
+  return status.replaceAll("_", " ");
 }

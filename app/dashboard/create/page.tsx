@@ -42,13 +42,17 @@ import {
   uploadMediaFile,
 } from "@/lib/services/storage-service";
 import { getStorageErrorMessage } from "@/lib/storage-errors";
-import { getPublishingErrorMessage } from "@/lib/publishing-errors";
+import { getPublishingErrorMessage, publishingErrorMessage } from "@/lib/publishing-errors";
+import {
+  validatePublishingMediaForPlatforms,
+  type PublishingMediaPlatform,
+} from "@/lib/publishing-media-validation";
 import {
   createPost,
   getPostById,
   updatePost,
 } from "@/lib/services/post-service";
-import { listSocialAccounts } from "@/lib/services/social-account-service";
+import { getTikTokCreatorInfo, listSocialAccounts } from "@/lib/services/social-account-service";
 import { requestPublishNow } from "@/lib/services/publishing-service";
 import {
   getLatestPostApproval,
@@ -61,11 +65,22 @@ import { utcToWorkspaceFields, workspaceDateTimeToUtc } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 import {
   DEFAULT_YOUTUBE_PRIVACY,
-  PUBLISHING_DESTINATION_PLATFORMS,
-  selectableDestinationAccounts,
   validateYouTubePublishing,
   youtubeValidationMessage,
 } from "@/lib/youtube-publishing";
+import {
+  COMPOSER_DESTINATION_PLATFORMS,
+  partitionComposerDestinationIds,
+  readTikTokComposerDestinationIds,
+  selectableComposerDestinationAccounts,
+} from "@/lib/composer-platforms";
+import {
+  normalizeTikTokPublishingSettings,
+  readTikTokPublishingSettings,
+  TIKTOK_VIDEO_PUBLISH_SCOPE,
+  tiktokValidationMessage,
+  validateTikTokPublishing,
+} from "@/lib/tiktok-publishing";
 import type {
   MediaAssetPresentation,
   MediaUploadQueueItem,
@@ -76,6 +91,8 @@ import type {
   SocialAccountView,
   ApprovalRequestWithRelations,
   EligibleApprover,
+  TikTokCreatorInfoResult,
+  Json,
 } from "@/types";
 
 const EMOJIS = ["😀", "🎉", "🚀", "🔥", "💜", "✨", "👏", "📈", "🙌", "☀️", "💡", "📌"];
@@ -134,6 +151,9 @@ function CreatePostEditor() {
   const [conflictOpen, setConflictOpen] = useState(false);
   const [baseline, setBaseline] = useState<string | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [tiktokCreatorInfo, setTikTokCreatorInfo] = useState<TikTokCreatorInfoResult | null>(null);
+  const [tiktokCreatorLoading, setTikTokCreatorLoading] = useState(false);
+  const [tiktokCreatorError, setTikTokCreatorError] = useState<string | null>(null);
 
   const [perPlatform, setPerPlatform] = useState(false);
   const [captions, setCaptions] = useState<Partial<Record<SocialPlatform, string>>>(
@@ -301,7 +321,18 @@ function CreatePostEditor() {
       setPerPlatform(Object.keys(nextCaptions).length > 0);
       setPlatformDetails(nextDetails);
       setSelectedMedia(item.media);
-      setSelectedDestinationIds(item.destinations.map((destination) => destination.social_account_id));
+      const savedTikTokDestinationIds = item.platforms.flatMap((platform) =>
+        platform.platform === "tiktok"
+          ? readTikTokComposerDestinationIds(platform.platform_settings)
+          : [],
+      );
+      const nextDestinationIds = [
+        ...new Set([
+          ...item.destinations.map((destination) => destination.social_account_id),
+          ...savedTikTokDestinationIds,
+        ]),
+      ];
+      setSelectedDestinationIds(nextDestinationIds);
       setAssignedTo(item.post.assigned_to);
       setDate(scheduleFields.date);
       setTime(scheduleFields.time);
@@ -313,7 +344,7 @@ function CreatePostEditor() {
           captions: nextCaptions,
           platformDetails: nextDetails,
           mediaAssetIds: item.media.map((mediaItem) => mediaItem.asset.id),
-          destinationAccountIds: item.destinations.map((destination) => destination.social_account_id),
+          destinationAccountIds: nextDestinationIds,
           date: scheduleFields.date,
           time: scheduleFields.time,
           timezone: nextTimezone,
@@ -480,7 +511,7 @@ function CreatePostEditor() {
     perPlatform && captions[p] !== undefined ? captions[p]! : caption;
 
   const connectedDestinations = useMemo(
-    () => selectableDestinationAccounts(accounts, activeWorkspace?.id ?? ""),
+    () => selectableComposerDestinationAccounts(accounts, activeWorkspace?.id ?? ""),
     [accounts, activeWorkspace?.id],
   );
   const selectedDestinationAccounts = useMemo(
@@ -490,16 +521,85 @@ function CreatePostEditor() {
   const hasYouTubeDestination = selectedDestinationAccounts.some(
     ({ account }) => account.platform === "youtube",
   );
+  const selectedTikTokAccounts = selectedDestinationAccounts.filter(
+    ({ account }) => account.platform === "tiktok",
+  );
+  const selectedTikTokAccount = selectedTikTokAccounts.length === 1
+    ? selectedTikTokAccounts[0].account
+    : null;
+  const hasTikTokPublishingPermission = Boolean(
+    selectedTikTokAccount?.granted_scopes.includes(TIKTOK_VIDEO_PUBLISH_SCOPE),
+  );
+  const destinationCapabilities = useMemo(
+    () => partitionComposerDestinationIds(accounts, selectedDestinationIds),
+    [accounts, selectedDestinationIds],
+  );
   const youtubeTitle = platformDetails.youtube?.platform_title ?? "";
   const youtubePrivacy = youtubePrivacyStatus(platformDetails.youtube?.platform_settings);
+  const tiktokSettings = readTikTokPublishingSettings(platformDetails.tiktok?.platform_settings);
+
+  const updateTikTokSettings = (updates: Record<string, Json>) => {
+    setPlatformDetails((current) => ({
+      ...current,
+      tiktok: {
+        ...current.tiktok,
+        platform_settings: {
+          ...platformSettingsObject(current.tiktok?.platform_settings),
+          ...updates,
+        },
+      },
+    }));
+  };
+
+  useEffect(() => {
+    if (!activeWorkspace || !selectedTikTokAccount || !hasTikTokPublishingPermission) {
+      setTikTokCreatorInfo(null);
+      setTikTokCreatorLoading(false);
+      setTikTokCreatorError(null);
+      return;
+    }
+    let cancelled = false;
+    setTikTokCreatorLoading(true);
+    setTikTokCreatorError(null);
+    void getTikTokCreatorInfo(activeWorkspace.id, selectedTikTokAccount.id)
+      .then((creator) => {
+        if (cancelled) return;
+        setTikTokCreatorInfo(creator);
+        setPlatformDetails((current) => {
+          const existing = readTikTokPublishingSettings(current.tiktok?.platform_settings);
+          return {
+            ...current,
+            tiktok: {
+              ...current.tiktok,
+              platform_settings: {
+                ...platformSettingsObject(current.tiktok?.platform_settings),
+                privacyLevel: creator.privacyLevelOptions.includes(existing.privacyLevel)
+                  ? existing.privacyLevel
+                  : "",
+                disableComment: creator.commentDisabled ? true : existing.disableComment,
+                disableDuet: creator.duetDisabled ? true : existing.disableDuet,
+                disableStitch: creator.stitchDisabled ? true : existing.disableStitch,
+                brandContentToggle: existing.brandContentToggle,
+                brandOrganicToggle: existing.brandOrganicToggle,
+                publishConsent: existing.publishConsent,
+                creatorMaxVideoPostDurationSec: creator.maxVideoPostDurationSec,
+              },
+            },
+          };
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setTikTokCreatorError("TikTok publishing settings could not be loaded.");
+      })
+      .finally(() => {
+        if (!cancelled) setTikTokCreatorLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [activeWorkspace, hasTikTokPublishingPermission, selectedTikTokAccount]);
 
   const validateScheduled = () => {
     if (selected.length === 0) {
       toast.error("Select a platform", "Choose at least one platform to post to.");
-      return false;
-    }
-    if (!caption.trim() && media.length === 0) {
-      toast.error("Add some content", "Write a caption or add media first.");
       return false;
     }
     if (selectedDestinationIds.length === 0) {
@@ -509,6 +609,39 @@ function CreatePostEditor() {
     if (selectedDestinationIds.some((id) => accounts.find((item) => item.account.id === id)?.account.connection_status !== "connected")) {
       toast.error("Reconnect an account", "Every publishing destination must be connected.");
       return false;
+    }
+    if (selectedTikTokAccounts.length > 1) {
+      toast.error("Choose one TikTok account", "This release supports one TikTok destination per post.");
+      return false;
+    }
+    const mediaError = validatePublishingMediaForPlatforms(
+      selectedDestinationAccounts.map(({ account }) => account.platform as PublishingMediaPlatform),
+      selectedMedia,
+    );
+    if (mediaError) {
+      const platform = mediaError.split("_")[0];
+      const platformName = platform.charAt(0) + platform.slice(1).toLowerCase();
+      toast.error(`${platformName} content is not ready`, publishingErrorMessage(mediaError));
+      return false;
+    }
+    const hasDestinationCaption = selectedDestinationAccounts.some(
+      ({ account }) => captionFor(account.platform).trim().length > 0,
+    );
+    if (!hasDestinationCaption && media.length === 0) {
+      toast.error("Add some content", "Write a caption or add media first.");
+      return false;
+    }
+    if (selectedTikTokAccount) {
+      const tiktokError = validateTikTokPublishing(
+        selectedMedia,
+        tiktokCreatorInfo,
+        tiktokSettings,
+        hasTikTokPublishingPermission,
+      );
+      if (tiktokError) {
+        toast.error("TikTok content is not ready", tiktokValidationMessage(tiktokError));
+        return false;
+      }
     }
     if (hasYouTubeDestination) {
       const youtubeError = validateYouTubePublishing(
@@ -554,14 +687,19 @@ function CreatePostEditor() {
       timezone,
       approvalRequired,
       assignedTo,
-      platforms: selected.map((platform) => ({
-        platform,
-        platform_caption: perPlatform ? captions[platform]?.trim() || null : null,
-        platform_title: platformDetails[platform]?.platform_title ?? null,
-        platform_settings: platformDetails[platform]?.platform_settings ?? {},
-      })),
+      platforms: selected.map((platform) => {
+        const settings = platformDetails[platform]?.platform_settings ?? {};
+        return {
+          platform,
+          platform_caption: perPlatform ? captions[platform]?.trim() || null : null,
+          platform_title: platformDetails[platform]?.platform_title ?? null,
+          platform_settings: platform === "tiktok"
+            ? normalizeTikTokPublishingSettings(settings)
+            : settings,
+        };
+      }),
       mediaAssetIds: selectedMedia.map((item) => item.asset.id),
-      destinationAccountIds: selectedDestinationIds,
+      destinationAccountIds: destinationCapabilities.publishableIds,
     };
 
     setMutating(true);
@@ -886,8 +1024,8 @@ function CreatePostEditor() {
               description="Choose where this content will be published"
             />
             <CardBody className="space-y-4">
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                {PLATFORM_LIST.filter((p) => PUBLISHING_DESTINATION_PLATFORMS.includes(p.id as (typeof PUBLISHING_DESTINATION_PLATFORMS)[number])).map((p) => {
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                {PLATFORM_LIST.filter((p) => COMPOSER_DESTINATION_PLATFORMS.includes(p.id as (typeof COMPOSER_DESTINATION_PLATFORMS)[number])).map((p) => {
                   const active = selected.includes(p.id);
                   return (
                     <button
@@ -1002,6 +1140,98 @@ function CreatePostEditor() {
                   </FormField>
                 </div>
               )}
+              {selected.includes("tiktok") && (
+                <div className="space-y-4 rounded-xl border border-border bg-surface-muted/40 p-4">
+                  <div>
+                    <p className="text-sm font-semibold text-ink">TikTok Direct Post settings</p>
+                    <p className="text-xs text-ink-subtle">Creator limits are loaded securely from TikTok for the selected account.</p>
+                  </div>
+                  {!selectedTikTokAccount ? (
+                    <p className="text-sm text-ink-muted">Select one connected TikTok account below.</p>
+                  ) : !hasTikTokPublishingPermission ? (
+                    <p role="status" className="rounded-lg border border-warning/30 bg-warning-soft px-3 py-2 text-sm text-ink-muted">Publishing permission required. Enable TikTok publishing from Social Accounts.</p>
+                  ) : tiktokCreatorLoading ? (
+                    <p className="text-sm text-ink-muted">Loading TikTok Creator Info…</p>
+                  ) : tiktokCreatorError ? (
+                    <p role="alert" className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">{tiktokCreatorError}</p>
+                  ) : tiktokCreatorInfo ? (
+                    <>
+                      <p className="text-xs text-ink-muted">
+                        {tiktokCreatorInfo.creatorUsername ? `@${tiktokCreatorInfo.creatorUsername}` : tiktokCreatorInfo.creatorNickname ?? "TikTok creator"}
+                        {` · Up to ${tiktokCreatorInfo.maxVideoPostDurationSec} seconds`}
+                      </p>
+                      <FormField label="TikTok caption" htmlFor="tiktok-caption" hint={`${captionFor("tiktok").length}/2200`}>
+                        <Textarea
+                          id="tiktok-caption"
+                          rows={3}
+                          maxLength={2200}
+                          value={captionFor("tiktok")}
+                          disabled={!canEdit}
+                          onChange={(event) => {
+                            if (perPlatform) setCaptions((current) => ({ ...current, tiktok: event.target.value }));
+                            else setCaption(event.target.value);
+                          }}
+                          placeholder="Write the TikTok caption"
+                        />
+                      </FormField>
+                      <FormField label="Privacy" htmlFor="tiktok-privacy" required>
+                        <Select
+                          id="tiktok-privacy"
+                          value={tiktokSettings.privacyLevel}
+                          disabled={!canEdit}
+                          onChange={(event) => updateTikTokSettings({ privacyLevel: event.target.value })}
+                        >
+                          <option value="">Choose privacy…</option>
+                          {tiktokCreatorInfo.privacyLevelOptions.map((option) => (
+                            <option key={option} value={option}>{tiktokPrivacyLabel(option)}</option>
+                          ))}
+                        </Select>
+                      </FormField>
+                      <fieldset className="space-y-2">
+                        <legend className="text-sm font-medium text-ink">Interactions</legend>
+                        {([
+                          ["Comments", "disableComment", tiktokCreatorInfo.commentDisabled],
+                          ["Duet", "disableDuet", tiktokCreatorInfo.duetDisabled],
+                          ["Stitch", "disableStitch", tiktokCreatorInfo.stitchDisabled],
+                        ] as const).map(([label, key, providerDisabled]) => (
+                          <label key={key} className={cn("flex items-center gap-2 text-sm text-ink", providerDisabled && "opacity-60")}>
+                            <input
+                              type="checkbox"
+                              checked={!tiktokSettings[key]}
+                              disabled={!canEdit || providerDisabled}
+                              onChange={(event) => updateTikTokSettings({ [key]: !event.target.checked })}
+                              className="h-4 w-4 accent-brand"
+                            />
+                            Allow {label}
+                            {providerDisabled && <span className="text-xs text-ink-subtle">Unavailable for this creator</span>}
+                          </label>
+                        ))}
+                      </fieldset>
+                      <fieldset className="space-y-2">
+                        <legend className="text-sm font-medium text-ink">Commercial content disclosure</legend>
+                        <label className="flex items-center gap-2 text-sm text-ink">
+                          <input type="checkbox" checked={tiktokSettings.brandOrganicToggle} disabled={!canEdit} onChange={(event) => updateTikTokSettings({ brandOrganicToggle: event.target.checked })} className="h-4 w-4 accent-brand" />
+                          Your brand (promoting yourself or your business)
+                        </label>
+                        <label className="flex items-center gap-2 text-sm text-ink">
+                          <input type="checkbox" checked={tiktokSettings.brandContentToggle} disabled={!canEdit} onChange={(event) => updateTikTokSettings({ brandContentToggle: event.target.checked })} className="h-4 w-4 accent-brand" />
+                          Branded content (promoting another brand)
+                        </label>
+                      </fieldset>
+                      <label className="flex items-start gap-2 rounded-lg border border-border bg-surface px-3 py-3 text-sm text-ink">
+                        <input
+                          type="checkbox"
+                          checked={tiktokSettings.publishConsent}
+                          disabled={!canEdit}
+                          onChange={(event) => updateTikTokSettings({ publishConsent: event.target.checked })}
+                          className="mt-0.5 h-4 w-4 accent-brand"
+                        />
+                        <span>By posting, I agree to TikTok&apos;s Music Usage Confirmation and confirm this content should be sent to TikTok.</span>
+                      </label>
+                    </>
+                  ) : null}
+                </div>
+              )}
             </CardBody>
           </Card>
 
@@ -1012,7 +1242,7 @@ function CreatePostEditor() {
                 <p className="py-4 text-center text-sm text-ink-muted">Loading connected accounts…</p>
               ) : connectedDestinations.length === 0 ? (
                 <p className="rounded-lg border border-border bg-surface-muted px-3 py-3 text-sm text-ink-muted">Connect a social account on the Accounts page before scheduling or publishing.</p>
-              ) : PUBLISHING_DESTINATION_PLATFORMS.map((platform) => {
+              ) : COMPOSER_DESTINATION_PLATFORMS.map((platform) => {
                 const platformAccounts = connectedDestinations.filter(({ account }) => account.platform === platform);
                 if (!platformAccounts.length) return null;
                 return (
@@ -1050,7 +1280,14 @@ function CreatePostEditor() {
                               className="h-4 w-4 accent-brand"
                             />
                             <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-ink">{account.account_name}</span><span className="block truncate text-xs text-ink-subtle">{account.username ? `@${account.username}` : account.account_type.replaceAll("_", " ")}</span></span>
-                            <span className={cn("text-xs font-semibold", connected && !expirySoon ? "text-success" : "text-warning")}>{!connected ? account.connection_status.replaceAll("_", " ") : expirySoon ? "Expires soon" : "Connected"}</span>
+                            <span className="text-right text-xs font-semibold">
+                              <span className={cn("block", connected && !expirySoon ? "text-success" : "text-warning")}>{!connected ? account.connection_status.replaceAll("_", " ") : expirySoon ? "Expires soon" : "Connected"}</span>
+                              {platform === "tiktok" && (
+                                <span className={cn("mt-0.5 block", account.granted_scopes.includes(TIKTOK_VIDEO_PUBLISH_SCOPE) ? "text-success" : "text-warning")}>
+                                  {account.granted_scopes.includes(TIKTOK_VIDEO_PUBLISH_SCOPE) ? "TikTok publishing enabled" : "Publishing permission required"}
+                                </span>
+                              )}
+                            </span>
                           </label>
                         );
                       })}
@@ -1058,6 +1295,9 @@ function CreatePostEditor() {
                   </div>
                 );
               })}
+              {selectedTikTokAccounts.length > 1 && (
+                <div role="status" className="rounded-lg border border-warning/30 bg-warning-soft px-3 py-2.5 text-sm text-ink-muted">This release supports one TikTok destination per post.</div>
+              )}
             </CardBody>
           </Card>
 
@@ -1359,9 +1599,9 @@ function serializeEditor(value: {
   });
 }
 
-function platformSettingsObject(value: PostPlatformInput["platform_settings"]): Record<string, unknown> {
+function platformSettingsObject(value: PostPlatformInput["platform_settings"]): Record<string, Json> {
   return value && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, unknown>
+    ? value as Record<string, Json>
     : {};
 }
 
@@ -1370,6 +1610,16 @@ function youtubePrivacyStatus(value: PostPlatformInput["platform_settings"]): st
   return typeof privacy === "string" && ["private", "unlisted", "public"].includes(privacy)
     ? privacy
     : DEFAULT_YOUTUBE_PRIVACY;
+}
+
+function tiktokPrivacyLabel(value: string): string {
+  switch (value) {
+    case "PUBLIC_TO_EVERYONE": return "Everyone";
+    case "MUTUAL_FOLLOW_FRIENDS": return "Friends";
+    case "FOLLOWER_OF_CREATOR": return "Followers";
+    case "SELF_ONLY": return "Only me";
+    default: return value.replaceAll("_", " ").toLowerCase();
+  }
 }
 
 function ComposerUploadRow({ item, onCancel, onRetry }: {

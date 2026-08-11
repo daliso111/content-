@@ -4,7 +4,8 @@ export type PublishingOperation =
   | "facebook_reel"
   | "instagram_image"
   | "instagram_reel"
-  | "youtube_video";
+  | "youtube_video"
+  | "tiktok_video";
 
 export interface SnapshotMedia {
   mediaAssetId: string;
@@ -23,7 +24,7 @@ export interface PublishingSnapshot {
   postId: string;
   postRevision: number;
   workspaceId: string;
-  platform: "facebook" | "instagram" | "youtube";
+  platform: "facebook" | "instagram" | "youtube" | "tiktok";
   socialAccountId: string;
   caption: string;
   platformTitle?: string | null;
@@ -38,10 +39,11 @@ export interface PublishingJob {
   post_id: string;
   post_revision: number;
   social_account_id: string;
-  platform: "facebook" | "instagram" | "youtube";
+  platform: "facebook" | "instagram" | "youtube" | "tiktok";
   operation: PublishingOperation;
   status: string;
   attempt_count: number;
+  failure_count?: number;
   max_attempts: number;
   provider_container_id: string | null;
   provider_post_id: string | null;
@@ -52,12 +54,13 @@ export interface PublishingJob {
 export interface PublishingAccount {
   id: string;
   workspaceId: string;
-  platform: "facebook" | "instagram" | "youtube";
+  platform: "facebook" | "instagram" | "youtube" | "tiktok";
   accountType:
     | "facebook_page"
     | "instagram_business"
     | "instagram_creator"
-    | "youtube_channel";
+    | "youtube_channel"
+    | "tiktok_user";
   platformAccountId: string;
   parentPageId: string | null;
   connectionStatus: string;
@@ -83,6 +86,16 @@ export interface ClaimedPublishingMessage {
   credential: PublishingCredential | null;
   youtubeUploadSessionUrl: string | null;
   youtubeCompletedVideoId: string | null;
+  tiktokPublishSession?: TikTokPublishSession | null;
+}
+
+export interface TikTokPublishSession {
+  submissionStartedAt: string | null;
+  publishId: string | null;
+  providerStatus: string | null;
+  statusCheckedAt: string | null;
+  nextStatusCheckAt: string | null;
+  pollCount: number;
 }
 
 export interface PublishingStepResult {

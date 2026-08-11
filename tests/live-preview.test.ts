@@ -47,7 +47,14 @@ const youtube = account(
   "Ithaca-q3z",
   "https://cdn.example.com/youtube.jpg",
 );
-const accounts = [facebook, youtube, instagram];
+const tiktok = account(
+  "tiktok-1",
+  "tiktok",
+  "Towkn Creator",
+  "@towkn.creator",
+  "https://cdn.example.com/tiktok.jpg",
+);
+const accounts = [facebook, youtube, instagram, tiktok];
 
 test("builds a Facebook-only preview", () => {
   assert.deepEqual(
@@ -70,6 +77,20 @@ test("builds a YouTube-only preview", () => {
   );
 });
 
+test("builds a TikTok preview from the real selected account metadata", () => {
+  assert.deepEqual(
+    buildLivePreviewDestinations(accounts, [tiktok.id]),
+    [{
+      id: "tiktok-1",
+      platform: "tiktok",
+      accountName: "Towkn Creator",
+      handle: "towkn.creator",
+      avatarUrl: "https://cdn.example.com/tiktok.jpg",
+      connectionStatus: "connected",
+    }],
+  );
+});
+
 test("builds Facebook and Instagram previews in display order", () => {
   assert.deepEqual(
     buildLivePreviewDestinations(accounts, [facebook.id, instagram.id]).map((item) => item.platform),
@@ -84,10 +105,10 @@ test("builds Facebook and YouTube previews", () => {
   );
 });
 
-test("builds all three publishing previews", () => {
+test("builds all composer previews while preserving the established provider order", () => {
   assert.deepEqual(
     buildLivePreviewDestinations(accounts, accounts.map((item) => item.id)).map((item) => item.platform),
-    ["instagram", "facebook", "youtube"],
+    ["instagram", "facebook", "tiktok", "youtube"],
   );
 });
 

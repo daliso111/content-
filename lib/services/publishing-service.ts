@@ -1,5 +1,5 @@
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { mapPublishingError } from "@/lib/publishing-errors";
+import { mapPublishingError, mapPublishingRequestError } from "@/lib/publishing-errors";
 import {
   ACTIVE_PUBLISHING_JOB_STATUSES,
   isActivePublishingJobStatus,
@@ -22,7 +22,11 @@ function client() {
 
 async function rpc<T>(name: "request_publish_now" | "cancel_post_publication" | "retry_publishing_job", args: Record<string, unknown>): Promise<T> {
   const { data, error } = await client().rpc(name, args as never);
-  if (error || data === null) throw mapPublishingError(error);
+  if (error || data === null) {
+    throw name === "request_publish_now"
+      ? mapPublishingRequestError(error)
+      : mapPublishingError(error);
+  }
   return data as T;
 }
 
