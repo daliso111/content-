@@ -276,7 +276,7 @@ export async function uploadMediaFile(
     if (error || !data) {
       const cleanup = await client.storage.from(MEDIA_BUCKET).remove([path]);
       if (cleanup.error && process.env.NODE_ENV === "development") {
-        console.warn("PostFlow could not clean up an object after a media record failure.");
+        console.warn("Towkn could not clean up an object after a media record failure.");
       }
       throw new StorageServiceError("metadata_failed");
     }

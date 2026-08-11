@@ -93,7 +93,7 @@ function SignUpForm() {
       return;
     }
 
-    toast.success("Account created", "Welcome to PostFlow!");
+    toast.success("Account created", "Welcome to Towkn!");
     router.replace("/dashboard");
   };
 

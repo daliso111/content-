@@ -1,4 +1,4 @@
--- PostFlow Stage 2B verification. Run sections separately in the SQL editor.
+-- Towkn Stage 2B verification. Run sections separately in the SQL editor.
 -- Behavior sections are rollback-only and require disposable test users/workspaces.
 
 -- 1. Schema and enum inventory.

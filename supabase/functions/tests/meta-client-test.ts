@@ -38,15 +38,15 @@ Deno.test("discovers a Page and its linked Instagram Professional account withou
     return Promise.resolve(Response.json(url.pathname.endsWith("/me/accounts") ? {
       data: [{
         id: "page-1",
-        name: "PostFlow Page",
+        name: "Towkn Page",
         access_token: "page-token",
         picture: { data: { url: "https://example.test/page.png" } },
       }],
     } : {
       instagram_business_account: {
           id: "ig-1",
-          username: "postflow",
-          name: "PostFlow",
+          username: "towkn",
+          name: "Towkn",
       },
     }));
   }) as typeof fetch;
@@ -156,9 +156,9 @@ Deno.test("refresh creates a linked Professional account without requesting acco
     const fields = new URL(String(input)).searchParams.get("fields") ?? "";
     assertEquals(fields.includes("account_type"), false);
     return Promise.resolve(Response.json(call === 1 ? {
-      instagram_business_account: { id: "ig-1", username: "postflow" },
+      instagram_business_account: { id: "ig-1", username: "towkn" },
     } : {
-      id: "ig-1", username: "postflow", name: "PostFlow",
+      id: "ig-1", username: "towkn", name: "Towkn",
     }));
   }) as typeof fetch;
   const destination = await discoverLinkedInstagramDestination(

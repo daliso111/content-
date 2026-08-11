@@ -1,4 +1,4 @@
--- PostFlow Stage 4A operational analytics verification.
+-- Towkn Stage 4A operational analytics verification.
 -- Run against a non-production database after applying all migrations.
 -- The behavior fixture is isolated in a transaction and always rolls back.
 

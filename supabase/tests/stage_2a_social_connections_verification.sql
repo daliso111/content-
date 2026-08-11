@@ -1,4 +1,4 @@
--- PostFlow Stage 2A verification.
+-- Towkn Stage 2A verification.
 -- Run each numbered section separately after applying all migrations in order.
 -- This file contains no project identifiers or credentials.
 
@@ -138,7 +138,7 @@ select
   ) = 0 as does_not_guess_destination_expiry;
 
 -- 8. Two-user browser verification (manual, non-production).
--- Use real Auth sessions through the Supabase client or PostFlow UI; do not put
+-- Use real Auth sessions through the Supabase client or Towkn UI; do not put
 -- JWTs or user IDs in this file. Confirm:
 -- * User A sees only social_accounts from User A's active workspaces.
 -- * User B cannot see User A's workspace accounts.

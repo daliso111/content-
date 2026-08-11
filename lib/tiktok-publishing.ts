@@ -3,7 +3,7 @@ import type { MediaAssetPresentation, TikTokCreatorInfoResult } from "../types";
 import { validatePublishingMediaForPlatform } from "./publishing-media-validation";
 
 export const TIKTOK_VIDEO_PUBLISH_SCOPE = "video.publish";
-export const TIKTOK_MAX_POSTFLOW_BYTES = 52_428_800;
+export const TIKTOK_MAX_VIDEO_BYTES = 52_428_800;
 
 export interface TikTokPublishingSettings {
   privacyLevel: string;
@@ -87,7 +87,7 @@ export function validateTikTokPublishing(
   if (!creator.privacyLevelOptions.includes(settings.privacyLevel)) return "TIKTOK_PRIVACY_INVALID";
   const bytes = media[0].asset.file_size;
   if (!bytes || bytes <= 0) return "TIKTOK_VIDEO_EMPTY";
-  if (bytes > TIKTOK_MAX_POSTFLOW_BYTES) return "TIKTOK_VIDEO_TOO_LARGE";
+  if (bytes > TIKTOK_MAX_VIDEO_BYTES) return "TIKTOK_VIDEO_TOO_LARGE";
   const duration = media[0].asset.duration_seconds;
   if (duration !== null && duration > creator.maxVideoPostDurationSec) return "TIKTOK_VIDEO_TOO_LONG";
   if (!settings.publishConsent) return "TIKTOK_CONSENT_REQUIRED";
@@ -107,7 +107,7 @@ export function tiktokValidationMessage(code: TikTokPublishingValidationCode): s
     case "TIKTOK_SINGLE_VIDEO_REQUIRED": return "TikTok currently supports one video per post.";
     case "TIKTOK_MEDIA_UNSUPPORTED": return "TikTok supports one MP4, MOV, or WebM video per post.";
     case "TIKTOK_VIDEO_EMPTY": return "The TikTok video must have a non-zero file size.";
-    case "TIKTOK_VIDEO_TOO_LARGE": return "The TikTok video exceeds PostFlow's 50 MiB upload limit.";
+    case "TIKTOK_VIDEO_TOO_LARGE": return "The TikTok video exceeds Towkn's 50 MiB upload limit.";
     case "TIKTOK_VIDEO_TOO_LONG": return "The video exceeds this TikTok creator's maximum duration.";
     case "TIKTOK_CONSENT_REQUIRED": return "Confirm TikTok's Music Usage terms before publishing.";
     case "TIKTOK_COMMERCIAL_DISCLOSURE_REQUIRED": return "Choose the applicable commercial content disclosure.";

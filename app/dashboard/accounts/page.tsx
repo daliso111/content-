@@ -215,7 +215,7 @@ export default function AccountsPage() {
       await loadAccounts();
       toast.success(
         `${connected.length} ${connected.length === 1 ? "account" : "accounts"} connected`,
-        "The selected destinations are ready for PostFlow publishing.",
+        "The selected destinations are ready for Towkn publishing.",
       );
     } catch (error) {
       toast.error("Connection not completed", errorMessage(error));
@@ -252,7 +252,7 @@ export default function AccountsPage() {
       await loadAccounts();
       toast.info(
         `${view.account.account_name} disconnected`,
-        result.warning ? "PostFlow removed its stored credential. Provider-wide access was left unchanged." : undefined,
+        result.warning ? "Towkn removed its stored credential. Provider-wide access was left unchanged." : undefined,
       );
     } catch (error) {
       toast.error("Account could not be disconnected", errorMessage(error));
@@ -481,7 +481,7 @@ export default function AccountsPage() {
         onConfirm={disconnectAccount}
         title="Disconnect account?"
         message={toDisconnect
-          ? `${toDisconnect.account.account_name} will no longer be available to PostFlow. Existing posts and media are preserved.`
+          ? `${toDisconnect.account.account_name} will no longer be available to Towkn. Existing posts and media are preserved.`
           : ""}
         confirmLabel="Disconnect"
         destructive

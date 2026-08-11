@@ -58,7 +58,7 @@ function SignInForm() {
       return;
     }
 
-    toast.success("Signed in", "Welcome back to PostFlow.");
+    toast.success("Signed in", "Welcome back to Towkn.");
     const nextPath = searchParams.get("next");
     router.replace(nextPath?.startsWith("/accept-invite?") && !nextPath.startsWith("//") ? nextPath : "/dashboard");
   };
@@ -66,7 +66,7 @@ function SignInForm() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your PostFlow workspace to keep your content flowing."
+      subtitle="Sign in to your Towkn workspace to keep your content flowing."
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         {configurationError && (
@@ -114,7 +114,7 @@ function SignInForm() {
           </Link>
         </div>
         <p className="text-xs text-ink-subtle">
-          PostFlow securely restores your Supabase session on this device.
+          Towkn securely restores your Supabase session on this device.
         </p>
         <Button
           type="submit"

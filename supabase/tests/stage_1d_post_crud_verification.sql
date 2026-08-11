@@ -1,4 +1,4 @@
--- PostFlow Stage 1D post CRUD verification
+-- Towkn Stage 1D post CRUD verification
 --
 -- Run each numbered section separately. Sections 1-4 are read-only catalog
 -- checks. Section 5 performs rollback-only behavior checks and must be run

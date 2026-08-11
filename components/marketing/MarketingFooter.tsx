@@ -25,7 +25,7 @@ export function MarketingFooter() {
             <Logo brandName={PUBLIC_BRAND.name} />
             <p className="mt-3 max-w-md text-sm text-ink-muted">
               The calm social workspace for planning, approvals, scheduling and
-              publishing. The application is currently also identified as {PUBLIC_BRAND.currentProductName}.
+              publishing.
             </p>
           </div>
           <FooterColumn title="Product" links={PRODUCT_LINKS} />
@@ -71,4 +71,3 @@ function FooterColumn({
     </div>
   );
 }
-

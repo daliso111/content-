@@ -1,4 +1,4 @@
--- PostFlow Stage 3B verification
+-- Towkn Stage 3B verification
 -- Run one numbered section at a time in Supabase SQL Editor.
 -- Sections 1-8 are read-only. Section 9 is a documented rollback-test template.
 

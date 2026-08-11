@@ -52,7 +52,7 @@ export default function NotificationsPage() {
   };
   return (
     <div className="space-y-6">
-      <PageHeader title="Notifications" description="Team, approval, publishing and account activity for your PostFlow account."
+      <PageHeader title="Notifications" description="Team, approval, publishing and account activity for your Towkn account."
         actions={<Button variant="outline" onClick={() => void context.markAllRead()} disabled={context.unreadCount === 0}><CheckCheck className="h-4 w-4" aria-hidden /> Mark all read</Button>} />
       <Tabs active={view} onChange={(id) => { setView(id as View); setPage(1); }} tabs={[
         { id: "all", label: "All" }, { id: "unread", label: "Unread", count: context.unreadCount },

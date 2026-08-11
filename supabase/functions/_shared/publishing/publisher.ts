@@ -60,7 +60,7 @@ export async function processClaim(
         if (error) {
           throw new PublishingError(
             "AMBIGUOUS_PROVIDER_OUTCOME",
-            "YouTube created the video, but PostFlow could not record the result.",
+            "YouTube created the video, but Towkn could not record the result.",
             false,
             true,
           );

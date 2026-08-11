@@ -805,7 +805,7 @@ function CreatePostEditor() {
     setMutating(true);
     try {
       await requestPublishNow(saved.postId, saved.revision);
-      toast.success("Publishing queued", "PostFlow will update each destination as it completes.");
+      toast.success("Publishing queued", "Towkn will update each destination as it completes.");
       router.push(`/dashboard/posts?publishing=${saved.postId}`);
     } catch (publishError) {
       toast.error("Publishing was not queued", getPublishingErrorMessage(publishError));
@@ -1415,7 +1415,7 @@ function CreatePostEditor() {
         open={publishConfirmOpen}
         onClose={() => setPublishConfirmOpen(false)}
         title="Queue this post now?"
-        description={`PostFlow will publish the latest saved revision to ${selectedDestinationIds.length} destination${selectedDestinationIds.length === 1 ? "" : "s"}.`}
+        description={`Towkn will publish the latest saved revision to ${selectedDestinationIds.length} destination${selectedDestinationIds.length === 1 ? "" : "s"}.`}
         size="sm"
         footer={<><Button type="button" variant="outline" onClick={() => setPublishConfirmOpen(false)}>Cancel</Button><Button type="button" onClick={() => void onPublishNow()} loading={mutating}><Zap className="h-4 w-4" /> Queue publishing</Button></>}
       >

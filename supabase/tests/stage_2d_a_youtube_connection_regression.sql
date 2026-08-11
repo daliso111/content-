@@ -58,8 +58,8 @@ begin
       "platform":"youtube",
       "accountType":"youtube_channel",
       "platformAccountId":"stage-2d-a-channel",
-      "accountName":"PostFlow Channel",
-      "username":"postflow",
+      "accountName":"Towkn Channel",
+      "username":"towkn",
       "profileImageUrl":"https://example.test/avatar.jpg",
       "tokenType":"Bearer",
       "tokenExpiresAt":"2099-01-01T00:00:00Z",
@@ -82,8 +82,8 @@ begin
       "platform":"youtube",
       "accountType":"youtube_channel",
       "platformAccountId":"stage-2d-a-channel",
-      "accountName":"PostFlow Channel Updated",
-      "username":"postflow-updated",
+      "accountName":"Towkn Channel Updated",
+      "username":"towkn-updated",
       "profileImageUrl":null,
       "tokenType":"Bearer",
       "tokenExpiresAt":"2099-01-02T00:00:00Z",
@@ -102,7 +102,7 @@ begin
            and platform_account_id = 'stage-2d-a-channel') <> 1 then
     raise exception 'Stage 2D-A reconnect was not idempotent';
   end if;
-  if second_result ->> 'accountName' <> 'PostFlow Channel Updated'
+  if second_result ->> 'accountName' <> 'Towkn Channel Updated'
      or second_result ? 'encryptedAccessToken'
      or second_result ? 'encryptedRefreshToken'
      or second_result ? 'accessTokenIv'

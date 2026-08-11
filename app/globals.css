@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /*
- * PostFlow design tokens.
+ * Towkn design tokens.
  * Values are raw "R G B" triplets so Tailwind can apply opacity modifiers.
  * A dark theme can be enabled later by toggling the `.dark` class on <html>.
  */

@@ -11,7 +11,7 @@ import type {
 /* ------------------------------------------------------------------ */
 /* Product identity — change these two values to rebrand the product.  */
 /* ------------------------------------------------------------------ */
-export const APP_NAME = "PostFlow";
+export const APP_NAME = "Towkn";
 export const APP_TAGLINE =
   "Plan, approve and publish your social content from one place.";
 
