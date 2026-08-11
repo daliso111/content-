@@ -1,9 +1,11 @@
 import type { MediaAssetPresentation, SocialAccountView } from "../types";
+import { validatePublishingMediaForPlatform } from "./publishing-media-validation";
 
 export const PUBLISHING_DESTINATION_PLATFORMS = [
   "facebook",
   "instagram",
   "youtube",
+  "tiktok",
 ] as const;
 
 export type YouTubePrivacyStatus = "private" | "unlisted" | "public";
@@ -42,7 +44,7 @@ export function validateYouTubePublishing(
   description: string,
   privacyStatus: string,
 ): YouTubePublishingValidationCode | null {
-  if (media.length !== 1 || media[0].asset.media_type !== "video") {
+  if (validatePublishingMediaForPlatform("youtube", media)) {
     return "YOUTUBE_VIDEO_REQUIRED";
   }
   const trimmedTitle = title.trim();

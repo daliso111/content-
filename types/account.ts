@@ -4,6 +4,7 @@ import type { SocialPlatform } from "./common";
 export type SocialAccount = Tables<"social_accounts">;
 export type SocialConnectionStatus = Enums<"social_connection_status">;
 export type SocialAccountType = Enums<"social_account_type">;
+export type ConnectedSocialAccountType = SocialAccountType | "tiktok_user";
 export type ConnectionStatus = SocialConnectionStatus;
 
 export interface DemoSocialAccount {
@@ -47,8 +48,8 @@ export interface MetaConnectionOptionsResult {
 export interface ConnectedAccountResult {
   id: string;
   workspaceId: string;
-  platform: "facebook" | "instagram" | "youtube";
-  accountType: SocialAccountType;
+  platform: "facebook" | "instagram" | "youtube" | "tiktok";
+  accountType: ConnectedSocialAccountType;
   platformAccountId: string;
   accountName: string;
   username: string | null;
@@ -63,4 +64,16 @@ export interface SocialAccountActionResult {
   lastRefreshedAt?: string;
   warning?: string | null;
   linkedInstagramAccountId?: string | null;
+}
+
+export interface TikTokCreatorInfoResult {
+  accountId: string;
+  creatorUsername: string | null;
+  creatorNickname: string | null;
+  creatorAvatarUrl: string | null;
+  privacyLevelOptions: string[];
+  commentDisabled: boolean;
+  duetDisabled: boolean;
+  stitchDisabled: boolean;
+  maxVideoPostDurationSec: number;
 }

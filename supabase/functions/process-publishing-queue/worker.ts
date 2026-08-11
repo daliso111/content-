@@ -65,11 +65,11 @@ export async function runWorker(
     } catch (claimError) {
       result = errorResult(
         claimError,
-        claim.attemptNumber,
+        (claim.job.failure_count ?? 0) + 1,
         claim.job.max_attempts,
       );
       if (result.status === "retry_wait") {
-        result.delaySeconds = retryDelay(claim.attemptNumber);
+        result.delaySeconds = retryDelay((claim.job.failure_count ?? 0) + 1);
       }
       if (
         claimError instanceof PublishingError &&
@@ -78,6 +78,9 @@ export async function runWorker(
           "ACCOUNT_DISCONNECTED",
           "MISSING_PERMISSION",
           "YOUTUBE_ACCOUNT_REAUTH_REQUIRED",
+          "TIKTOK_ACCOUNT_REAUTH_REQUIRED",
+          "TIKTOK_PUBLISH_PERMISSION_REQUIRED",
+          "TIKTOK_PUBLISHING_PERMISSION_REQUIRED",
         ]
           .includes(claimError.code)
       ) {

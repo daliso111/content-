@@ -404,6 +404,18 @@ verify_jwt = true
 [functions.youtube-oauth-callback]
 verify_jwt = false
 
+[functions.tiktok-oauth-start]
+verify_jwt = true
+
+[functions.tiktok-oauth-callback]
+verify_jwt = false
+
+[functions.tiktok-creator-info]
+verify_jwt = true
+
+[functions.tiktok-media]
+verify_jwt = false
+
 [functions.meta-connection-options]
 verify_jwt = true
 

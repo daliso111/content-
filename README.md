@@ -71,7 +71,7 @@ npm run serve         # serves ./out via `npx serve`
 | `/dashboard/calendar`     | Month / week / list calendar of scheduled posts    |
 | `/dashboard/posts`        | Posts management (grid/table, filters, bulk, pages) |
 | `/dashboard/media`        | Media library (grid/list, upload, details)         |
-| `/dashboard/accounts`     | Facebook Page and Instagram Professional connections |
+| `/dashboard/accounts`     | Meta, YouTube, and TikTok account connections       |
 | `/dashboard/approvals`    | Approval centre with review modal                  |
 | `/dashboard/analytics`    | Analytics dashboard with charts                    |
 | `/dashboard/team`         | Team members table + invite modal                  |
@@ -129,8 +129,10 @@ pagination, and social-post previews (Facebook, Instagram, LinkedIn, TikTok, X).
 Authentication, workspaces, media, post CRUD, schedules, approvals, dashboard
 metrics/lists, Posts and Calendar use Supabase after their migrations are applied.
 Facebook and Instagram connections and publishing require Stages 2A/2B plus the
-deployed worker. LinkedIn, TikTok, YouTube and X are coming soon. Engagement
-analytics and AI suggestions remain demo-only.
+deployed worker. YouTube connection/publishing and TikTok account connection are
+implemented in their respective stages; TikTok publishing is not supported.
+LinkedIn and X are coming soon. Engagement analytics and AI suggestions remain
+demo-only.
 
 ---
 
@@ -465,6 +467,42 @@ the two-user and real Meta browser checklist. This repository is not linked to
 a remote Supabase project, so Stage 2A has not been applied, deployed, or
 browser-tested. Regenerate types with `npm run db:types` after the remote
 migration succeeds.
+
+---
+
+## Stage 2E-A TikTok account connection
+
+Stage 2E-A connects one TikTok user account through the static Social Accounts
+page and server-side Supabase Edge Functions. It requests only
+`user.info.basic`; it does not request Content Posting API scopes and does not
+make TikTok a publishing destination. The migration is
+[`supabase/migrations/20260810120000_stage_2e_a_tiktok_connections.sql`](./supabase/migrations/20260810120000_stage_2e_a_tiktok_connections.sql).
+
+Configure these server-only placeholders in the ignored Edge Function secrets
+file: `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, and
+`TIKTOK_OAUTH_REDIRECT_URI`. The flow also uses `POSTFLOW_APP_URL`,
+`ALLOWED_APP_ORIGINS`, and `SOCIAL_TOKEN_ENCRYPTION_KEY`. Never add the TikTok
+client secret or provider tokens to a `NEXT_PUBLIC_*` variable or Firebase
+configuration.
+
+In the TikTok Developer Sandbox, add the exact deployed callback URL as the Login
+Kit redirect URI, enable Login Kit, request `user.info.basic`, and add the test
+TikTok users who will complete authorization. After applying the migration,
+deploy only the functions used by this stage:
+
+```bash
+supabase functions deploy tiktok-oauth-start
+supabase functions deploy tiktok-oauth-callback --no-verify-jwt
+supabase functions deploy social-account-refresh
+supabase functions deploy social-account-disconnect
+```
+
+Run the Deno tests and
+[`supabase/tests/stage_2e_a_tiktok_connection_regression.sql`](./supabase/tests/stage_2e_a_tiktok_connection_regression.sql)
+against a disposable/local database. Then connect from Dashboard → Social
+Accounts → Connect account → TikTok, confirm the basic profile appears, refresh
+it, reconnect it, and disconnect it. TikTok video/photo publishing, scheduling,
+analytics, comments, and messaging remain intentionally unavailable.
 
 ---
 

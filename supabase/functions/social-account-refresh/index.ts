@@ -19,10 +19,15 @@ import {
   refreshYouTubeAccessToken,
 } from "../_shared/youtube-client.ts";
 import { getYouTubeConfig } from "../_shared/youtube-config.ts";
+import {
+  discoverTikTokUser,
+  refreshTikTokAccessToken,
+} from "../_shared/tiktok-client.ts";
+import { getTikTokConfig } from "../_shared/tiktok-config.ts";
 
 interface CredentialRecord {
   id: string;
-  platform: MetaPlatform | "youtube";
+  platform: MetaPlatform | "youtube" | "tiktok";
   platformAccountId: string;
   encryptedAccessToken: string;
   accessTokenIv: string;
@@ -92,6 +97,64 @@ Deno.serve(async (request) => {
         },
       );
       return jsonResponse(request, result);
+    }
+
+    if (credential.platform === "tiktok") {
+      if (!credential.encryptedRefreshToken || !credential.refreshTokenIv) {
+        throw new ConnectionError("TIKTOK_REAUTHORIZATION_REQUIRED", 401);
+      }
+      const refreshToken = await decryptToken(
+        credential.encryptedRefreshToken,
+        credential.refreshTokenIv,
+      );
+      const refreshed = await refreshTikTokAccessToken(
+        getTikTokConfig(),
+        refreshToken,
+      );
+      if (refreshed.openId !== credential.platformAccountId) {
+        throw new ConnectionError("TIKTOK_OPEN_ID_MISMATCH", 409);
+      }
+      const encryptedAccess = await encryptToken(refreshed.accessToken);
+      const encryptedRefresh = await encryptToken(refreshed.refreshToken);
+
+      // TikTok refresh tokens may rotate. Persist both returned credentials
+      // before any profile request that can fail independently.
+      const persisted = await trustedRpc<Record<string, unknown>>(
+        trusted,
+        "update_tiktok_connection_tokens",
+        {
+          p_social_account_id: accountId,
+          p_actor_id: user.id,
+          p_encrypted_access_token: encryptedAccess.ciphertext,
+          p_access_token_iv: encryptedAccess.iv,
+          p_encrypted_refresh_token: encryptedRefresh.ciphertext,
+          p_refresh_token_iv: encryptedRefresh.iv,
+          p_token_type: refreshed.tokenType ?? credential.tokenType,
+          p_token_expires_at: refreshed.expiresAt,
+          p_refresh_token_expires_at: refreshed.refreshExpiresAt,
+          p_granted_scopes: refreshed.grantedScopes,
+        },
+      );
+      const profile = await discoverTikTokUser(
+        refreshed.accessToken,
+        credential.platformAccountId,
+      );
+      const metadata = await trustedRpc<Record<string, unknown>>(
+        trusted,
+        "update_social_account_refresh",
+        {
+          p_social_account_id: accountId,
+          p_actor_id: user.id,
+          p_account_name: profile.accountName,
+          p_username: null,
+          p_profile_image_url: profile.profileImageUrl,
+          p_token_expires_at: refreshed.expiresAt,
+          p_connection_status: "connected",
+          p_error_code: null,
+          p_error_message: null,
+        },
+      );
+      return jsonResponse(request, { ...persisted, ...metadata });
     }
 
     if (
@@ -173,6 +236,9 @@ Deno.serve(async (request) => {
         "META_PROVIDER_UNAVAILABLE",
         "YOUTUBE_REAUTHORIZATION_REQUIRED",
         "YOUTUBE_PROVIDER_UNAVAILABLE",
+        "TIKTOK_REAUTHORIZATION_REQUIRED",
+        "TIKTOK_OPEN_ID_MISMATCH",
+        "TIKTOK_REQUIRED_SCOPE_MISSING",
       ].includes(safe.code)
     ) {
       try {
@@ -194,6 +260,8 @@ Deno.serve(async (request) => {
               ? "Meta access has expired. Reconnect this account."
               : safe.code.startsWith("YOUTUBE_")
               ? "PostFlow could not verify this YouTube connection. Reauthorize the channel."
+              : safe.code.startsWith("TIKTOK_")
+              ? "PostFlow could not verify this TikTok connection. Reauthorize the account."
               : "PostFlow could not verify this Meta connection.",
           },
         );

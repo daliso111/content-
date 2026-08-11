@@ -1,9 +1,12 @@
-import { PUBLISHING_DESTINATION_PLATFORMS } from "./youtube-publishing";
+import {
+  COMPOSER_DESTINATION_PLATFORMS,
+  type ComposerDestinationPlatform,
+} from "./composer-platforms";
 import type { SocialAccount, SocialPlatform } from "../types";
 
 export type LivePreviewPlatform = Extract<
   SocialPlatform,
-  (typeof PUBLISHING_DESTINATION_PLATFORMS)[number]
+  ComposerDestinationPlatform
 >;
 
 export type LivePreviewAccount = Pick<
@@ -50,6 +53,7 @@ export interface LivePreviewContent<TMedia> {
 const PREVIEW_PLATFORM_ORDER: LivePreviewPlatform[] = [
   "instagram",
   "facebook",
+  "tiktok",
   "youtube",
 ];
 
@@ -70,7 +74,7 @@ export function buildLivePreviewDestinations(
     .filter(
       (account): account is LivePreviewAccount & { platform: LivePreviewPlatform } =>
         selectedOrder.has(account.id) &&
-        PUBLISHING_DESTINATION_PLATFORMS.includes(
+        COMPOSER_DESTINATION_PLATFORMS.includes(
           account.platform as LivePreviewPlatform,
         ),
     )

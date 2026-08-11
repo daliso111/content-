@@ -106,6 +106,17 @@ export function CreatePostLivePreview({
           </span>
         </div>
       )}
+      {activeDestination.platform === "tiktok" && (
+        <div
+          role="status"
+          className="mb-4 flex gap-2 rounded-lg border border-warning/30 bg-warning-soft p-3 text-xs text-ink-muted"
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0 text-warning" aria-hidden />
+          <span>
+            This preview is approximate; TikTok applies final processing and presentation.
+          </span>
+        </div>
+      )}
       <SocialPreview
         platform={activeDestination.platform}
         caption={previewContent.caption}

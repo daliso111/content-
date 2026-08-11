@@ -6,6 +6,7 @@ import type {
   MetaConnectionOptionsResult,
   SocialAccountActionResult,
   SocialAccountView,
+  TikTokCreatorInfoResult,
 } from "@/types";
 
 interface FunctionErrorPayload {
@@ -90,6 +91,43 @@ export async function startYouTubeConnection(workspaceId: string, returnPath = "
   return result;
 }
 
+async function startTikTokOAuth(
+  body: Record<string, unknown>,
+) {
+  const result = await invoke<{ authorizationUrl: string; expiresAt: string }>(
+    "tiktok-oauth-start",
+    body,
+  );
+  const url = new URL(result.authorizationUrl);
+  if (
+    url.protocol !== "https:" || url.hostname !== "www.tiktok.com" ||
+    url.pathname !== "/v2/auth/authorize/"
+  ) {
+    throw new SocialAccountError("INTERNAL_ERROR");
+  }
+  return result;
+}
+
+export function startTikTokConnection(
+  workspaceId: string,
+  returnPath = "/dashboard/accounts",
+) {
+  return startTikTokOAuth({ workspaceId, returnPath });
+}
+
+export function startTikTokPublishingUpgrade(
+  workspaceId: string,
+  socialAccountId: string,
+  returnPath = "/dashboard/accounts",
+) {
+  return startTikTokOAuth({
+    workspaceId,
+    socialAccountId,
+    intent: "enable_publishing",
+    returnPath,
+  });
+}
+
 export function getMetaConnectionOptions(connectionSessionId: string) {
   return invoke<MetaConnectionOptionsResult>("meta-connection-options", { connectionSessionId });
 }
@@ -113,12 +151,22 @@ export function disconnectSocialAccount(socialAccountId: string) {
   return invoke<SocialAccountActionResult>("social-account-disconnect", { socialAccountId });
 }
 
+export function getTikTokCreatorInfo(workspaceId: string, socialAccountId: string) {
+  return invoke<TikTokCreatorInfoResult>("tiktok-creator-info", {
+    workspaceId,
+    socialAccountId,
+  });
+}
+
 export const socialAccountService = {
   listSocialAccounts,
   startMetaConnection,
   startYouTubeConnection,
+  startTikTokConnection,
+  startTikTokPublishingUpgrade,
   getMetaConnectionOptions,
   completeMetaConnection,
   refreshSocialAccount,
   disconnectSocialAccount,
+  getTikTokCreatorInfo,
 };
