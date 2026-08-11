@@ -46,6 +46,6 @@ test("an actual Meta provider temporary error keeps its provider wording", () =>
   assert.equal(error.code, "PROVIDER_TEMPORARY_ERROR");
   assert.equal(
     error.message,
-    "Meta is temporarily unavailable. PostFlow will retry safely.",
+    "Meta is temporarily unavailable. Towkn will retry safely.",
   );
 });

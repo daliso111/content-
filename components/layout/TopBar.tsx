@@ -52,7 +52,7 @@ export function TopBar({
   const displayName =
     typeof user?.user_metadata.full_name === "string"
       ? user.user_metadata.full_name
-      : "PostFlow user";
+      : "Towkn user";
   const displayRole = user?.email ?? "Signed in";
 
   const handleSignOut = async () => {

@@ -17,15 +17,14 @@ export default function PrivacyPage() {
     <PublicPageShell
       eyebrow="Legal"
       title="Privacy Policy"
-      summary={`This policy explains how ${PUBLIC_BRAND.name}, the public brand for the ${PUBLIC_BRAND.currentProductName} social media management application, handles information when you use the service.`}
+      summary={`This policy explains how ${PUBLIC_BRAND.currentProductName} handles information when you use the social media management service.`}
       updatedAt={PUBLIC_BRAND.effectiveDate}
     >
       <PublicSection title="1. Scope and service operator">
         <p>
           This Privacy Policy applies to the website at {PUBLIC_BRAND.siteUrl}, the
-          PostFlow application presented under the Towkn brand, and related support
-          interactions. In this policy, “Towkn,” “PostFlow,” “we,” “us” and “the
-          service” refer to that service.
+          Towkn application, and related support interactions. In this policy,
+          “Towkn,” “we,” “us” and “the service” refer to that service.
         </p>
         <p>
           The service operator is currently identified for publication as{" "}
@@ -59,7 +58,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="font-semibold text-ink">Publishing and operational records:</strong>{" "}
-            publishing jobs, attempts, provider identifiers, success or failure status, safe error codes, scheduling history and operational analytics derived from PostFlow activity.
+            publishing jobs, attempts, provider identifiers, success or failure status, safe error codes, scheduling history and operational analytics derived from Towkn activity.
           </li>
           <li>
             <strong className="font-semibold text-ink">Support and technical information:</strong>{" "}
@@ -86,18 +85,18 @@ export default function PrivacyPage() {
 
       <PublicSection title="4. OAuth permissions and provider credentials">
         <p>
-          When you connect a social account, the provider presents its own authorization screen. The permissions displayed there control what PostFlow may request through that provider’s API. You should review those permissions before approving them.
+          When you connect a social account, the provider presents its own authorization screen. The permissions displayed there control what Towkn may request through that provider’s API. You should review those permissions before approving them.
         </p>
         <p>
           Access tokens, refresh tokens and similar provider credentials may be stored in encrypted form so the service can maintain a connection and carry out authorized publishing. Credential decryption and provider API calls are designed to occur in Supabase Edge Functions or other server-side service components. Provider credentials, service-role keys and encryption keys are not intentionally returned to browser-facing account responses.
         </p>
         <p>
-          No security measure is infallible. If you believe a connection or account has been compromised, disconnect it in PostFlow, review the provider’s own security settings and contact support.
+          No security measure is infallible. If you believe a connection or account has been compromised, disconnect it in Towkn, review the provider’s own security settings and contact support.
         </p>
       </PublicSection>
 
       <PublicSection title="5. Infrastructure and third-party platforms">
-        <p>We rely on service providers and social platforms to operate PostFlow:</p>
+        <p>We rely on service providers and social platforms to operate Towkn:</p>
         <PublicList>
           <li>
             <strong className="font-semibold text-ink">Supabase</strong> provides application infrastructure used for authentication, database storage, media storage and server-side Edge Functions.
@@ -122,16 +121,16 @@ export default function PrivacyPage() {
           Account, workspace, content, media, scheduling and publishing records are generally retained while they are needed to operate the service, preserve workspace history, address security or support issues, and meet legitimate legal or operational needs. Different records may be retained for different periods. We do not state a fixed retention period because one has not yet been formally adopted for every category.
         </p>
         <p>
-          Deleted information may remain temporarily in backups, logs or systems operated by service providers. Content already sent to a social platform is governed by that platform and is not removed from the platform merely because it is deleted from PostFlow.
+          Deleted information may remain temporarily in backups, logs or systems operated by service providers. Content already sent to a social platform is governed by that platform and is not removed from the platform merely because it is deleted from Towkn.
         </p>
       </PublicSection>
 
       <PublicSection title="7. Disconnecting social accounts">
         <p>
-          Disconnecting a social account removes PostFlow’s stored connection credential and prevents that account from being used for new publishing through the workspace. Existing drafts, media, publishing history and operational records may remain so the workspace retains an accurate record of prior activity.
+          Disconnecting a social account removes Towkn’s stored connection credential and prevents that account from being used for new publishing through the workspace. Existing drafts, media, publishing history and operational records may remain so the workspace retains an accurate record of prior activity.
         </p>
         <p>
-          Disconnecting inside PostFlow may not revoke provider-wide authorization. Where needed, you can also revoke the application through the security or connected-app settings offered by Meta, Google/YouTube or the relevant provider.
+          Disconnecting inside Towkn may not revoke provider-wide authorization. Where needed, you can also revoke the application through the security or connected-app settings offered by Meta, Google/YouTube or the relevant provider.
         </p>
       </PublicSection>
 
@@ -148,7 +147,7 @@ export default function PrivacyPage() {
 
       <PublicSection title="9. Security practices">
         <p>
-          PostFlow uses measures intended to reduce unauthorized access, including encrypted provider credentials, private credential storage, server-side service-role access, workspace-based authorization, row-level security policies and restricted provider operations. We also limit browser-facing account data so credentials are not intentionally included.
+          Towkn uses measures intended to reduce unauthorized access, including encrypted provider credentials, private credential storage, server-side service-role access, workspace-based authorization, row-level security policies and restricted provider operations. We also limit browser-facing account data so credentials are not intentionally included.
         </p>
         <p>
           These practices reduce risk but do not guarantee absolute security, uninterrupted availability or protection against every threat. Users are responsible for protecting their passwords, email accounts and connected provider accounts.
@@ -180,4 +179,3 @@ export default function PrivacyPage() {
     </PublicPageShell>
   );
 }
-

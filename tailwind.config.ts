@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * PostFlow design system.
+ * Towkn design system.
  * Colours are exposed as CSS variables in app/globals.css so the theme
  * (including future dark mode) can be swapped without editing this file.
  */

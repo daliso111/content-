@@ -59,7 +59,7 @@ export default function SupportPage() {
             </a>
           </p>
           <p className="mt-2 text-sm leading-6 text-ink-muted">
-            Use the email address associated with your PostFlow account when possible. Include your workspace name, the affected platform and a concise description of what happened.
+            Use the email address associated with your Towkn account when possible. Include your workspace name, the affected platform and a concise description of what happened.
           </p>
         </div>
       </PublicSection>
@@ -69,7 +69,7 @@ export default function SupportPage() {
           <li>your workspace name and the page or screen where the issue occurred;</li>
           <li>the social platform involved and the visible account or channel name;</li>
           <li>the approximate date and time of the problem, including your timezone;</li>
-          <li>the safe error code shown by PostFlow, if one appears; and</li>
+          <li>the safe error code shown by Towkn, if one appears; and</li>
           <li>the steps you took before the problem occurred.</li>
         </PublicList>
         <div className="flex gap-3 rounded-xl border border-warning/30 bg-warning-soft p-4">
@@ -85,7 +85,7 @@ export default function SupportPage() {
           <li>Confirm you are signed into the intended provider account and have authority over the Page or channel.</li>
           <li>Open Social Accounts and try Refresh before reconnecting.</li>
           <li>Review the provider’s authorization screen and grant only the permissions required for the features you want to use.</li>
-          <li>If you disconnect in PostFlow, remember that provider-wide authorization may still need to be revoked separately in the provider’s settings.</li>
+          <li>If you disconnect in Towkn, remember that provider-wide authorization may still need to be revoked separately in the provider’s settings.</li>
         </PublicList>
       </PublicSection>
 
@@ -103,7 +103,7 @@ export default function SupportPage() {
           Email {PUBLIC_BRAND.supportEmail} from the address associated with your account and clearly state whether you are requesting access, correction, account deletion or workspace-related deletion. We may ask you to verify your identity and authority over the affected workspace.
         </p>
         <p>
-          Deleting a PostFlow account does not automatically remove content already published to Meta, YouTube or another provider. Remove that content through the provider where necessary. See the{" "}
+          Deleting a Towkn account does not automatically remove content already published to Meta, YouTube or another provider. Remove that content through the provider where necessary. See the{" "}
           <Link href="/privacy" className="font-medium text-brand-text underline-offset-4 hover:underline">Privacy Policy</Link>{" "}
           for information about retention and disconnection.
         </p>
@@ -119,4 +119,3 @@ export default function SupportPage() {
     </PublicPageShell>
   );
 }
-

@@ -111,7 +111,7 @@ const PROVIDER_ERROR_MAPPINGS: Record<
   rate_limit_exceeded: {
     code: "TIKTOK_RATE_LIMITED",
     message:
-      "TikTok is rate limiting publishing requests. PostFlow will retry safely.",
+      "TikTok is rate limiting publishing requests. Towkn will retry safely.",
     retryable: true,
   },
   invalid_param: {

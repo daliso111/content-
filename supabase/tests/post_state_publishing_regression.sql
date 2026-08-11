@@ -1,4 +1,4 @@
--- PostFlow post-state regression coverage.
+-- Towkn post-state regression coverage.
 -- Run only against a disposable/local database. The transaction always rolls back.
 
 begin;

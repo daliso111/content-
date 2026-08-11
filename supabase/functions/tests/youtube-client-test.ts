@@ -26,7 +26,7 @@ const config: YouTubeConfig = {
   clientSecret: "youtube-secret",
   redirectUri:
     "https://project.supabase.co/functions/v1/youtube-oauth-callback",
-  appUrl: new URL("https://postflow.example"),
+  appUrl: new URL("https://towkn.example"),
 };
 
 Deno.test("YouTube authorization URL requests exact scopes and offline consent", () => {
@@ -198,8 +198,8 @@ Deno.test("YouTube channel discovery maps title, handle, and best avatar safely"
         items: [{
           id: "channel-1",
           snippet: {
-            title: "PostFlow Channel",
-            customUrl: "@postflow",
+            title: "Towkn Channel",
+            customUrl: "@towkn",
             thumbnails: {
               default: { url: "https://example.test/default.jpg" },
               high: { url: "https://example.test/high.jpg" },
@@ -213,8 +213,8 @@ Deno.test("YouTube channel discovery maps title, handle, and best avatar safely"
     platform: "youtube",
     accountType: "youtube_channel",
     platformAccountId: "channel-1",
-    accountName: "PostFlow Channel",
-    username: "postflow",
+    accountName: "Towkn Channel",
+    username: "towkn",
     profileImageUrl: "https://example.test/high.jpg",
   });
   assertEquals(authorization, "Bearer access-token");
@@ -247,11 +247,11 @@ Deno.test("YouTube provider errors never include raw Google payload details", as
 Deno.test("Social Accounts presents YouTube as its own channel identity", () => {
   const identity = socialAccountIdentity({
     platform: "youtube",
-    account_name: "PostFlow Channel",
-    username: "postflow",
+    account_name: "Towkn Channel",
+    username: "towkn",
     platform_account_id: "channel-1",
   });
   assertEquals(identity.platformLabel, "YouTube");
-  assertEquals(identity.primary, "PostFlow Channel");
-  assertEquals(identity.secondary, "@postflow");
+  assertEquals(identity.primary, "Towkn Channel");
+  assertEquals(identity.secondary, "@towkn");
 });

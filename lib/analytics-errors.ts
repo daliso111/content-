@@ -95,7 +95,7 @@ export function mapAnalyticsError(error: unknown): AnalyticsServiceError {
   ) {
     return new AnalyticsServiceError(
       "network_failure",
-      "PostFlow could not reach analytics. Check your connection and try again.",
+      "Towkn could not reach analytics. Check your connection and try again.",
       { cause: error },
     );
   }
@@ -112,7 +112,7 @@ export function mapAnalyticsError(error: unknown): AnalyticsServiceError {
 
   return new AnalyticsServiceError(
     "aggregation_failure",
-    "PostFlow could not load operational analytics. Please try again.",
+    "Towkn could not load operational analytics. Please try again.",
     { cause: error },
   );
 }

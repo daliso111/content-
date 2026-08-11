@@ -3,14 +3,13 @@ import { APP_NAME } from "@/lib/constants";
 /**
  * Public-facing identity for marketing and legal pages.
  *
- * Keep the current in-app name separate while the product transitions from
- * PostFlow to Towkn. Backend identifiers and provider configuration must not
- * depend on these presentation values.
+ * Backend identifiers and provider configuration must not depend on these
+ * presentation values.
  */
 export const PUBLIC_BRAND = {
-  name: "Towkn",
+  name: APP_NAME,
   currentProductName: APP_NAME,
-  serviceName: `Towkn / ${APP_NAME}`,
+  serviceName: APP_NAME,
   siteUrl: "https://towkn.com",
   // Confirm that this mailbox is provisioned and monitored before publication.
   supportEmail: "support@towkn.com",

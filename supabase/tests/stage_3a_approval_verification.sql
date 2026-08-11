@@ -1,4 +1,4 @@
--- PostFlow Stage 3A verification. Run each numbered section separately.
+-- Towkn Stage 3A verification. Run each numbered section separately.
 -- Mutation templates require disposable authenticated users and always roll back.
 
 -- 1. Enum inventory. Expected: every value from the Stage 3A specification.

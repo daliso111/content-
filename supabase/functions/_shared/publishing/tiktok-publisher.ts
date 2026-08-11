@@ -255,7 +255,7 @@ export async function publishTikTokStep(
   await actions.storePublishId(initialized.publishId).catch(() => {
     throw new PublishingError(
       "AMBIGUOUS_PROVIDER_OUTCOME",
-      "TikTok accepted the video, but PostFlow could not record its publishing identifier.",
+      "TikTok accepted the video, but Towkn could not record its publishing identifier.",
       false,
       true,
       undefined,

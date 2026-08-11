@@ -259,10 +259,10 @@ Deno.serve(async (request) => {
             p_error_message: safe.code === "TOKEN_EXPIRED"
               ? "Meta access has expired. Reconnect this account."
               : safe.code.startsWith("YOUTUBE_")
-              ? "PostFlow could not verify this YouTube connection. Reauthorize the channel."
+              ? "Towkn could not verify this YouTube connection. Reauthorize the channel."
               : safe.code.startsWith("TIKTOK_")
-              ? "PostFlow could not verify this TikTok connection. Reauthorize the account."
-              : "PostFlow could not verify this Meta connection.",
+              ? "Towkn could not verify this TikTok connection. Reauthorize the account."
+              : "Towkn could not verify this Meta connection.",
           },
         );
       } catch {

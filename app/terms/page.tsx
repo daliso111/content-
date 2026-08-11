@@ -17,7 +17,7 @@ export default function TermsPage() {
     <PublicPageShell
       eyebrow="Legal"
       title="Terms of Service"
-      summary={`These Terms govern access to and use of ${PUBLIC_BRAND.name}, including the ${PUBLIC_BRAND.currentProductName} social media management application.`}
+      summary={`These Terms govern access to and use of the ${PUBLIC_BRAND.currentProductName} social media management application.`}
       updatedAt={PUBLIC_BRAND.effectiveDate}
     >
       <PublicSection title="1. Agreement and service operator">
@@ -27,13 +27,13 @@ export default function TermsPage() {
         <p>
           The contracting service operator must be inserted before publication:{" "}
           <strong className="font-semibold text-ink">{PUBLIC_BRAND.operatorName}</strong>.
-          “Towkn,” “PostFlow,” “we” and “the service” refer to the service operated by that party.
+          “Towkn,” “we” and “the service” refer to the service operated by that party.
         </p>
       </PublicSection>
 
       <PublicSection title="2. Service description">
         <p>
-          PostFlow is a software service for creating and storing social content, uploading media, coordinating workspace approvals, scheduling posts, connecting supported social accounts, submitting selected content to third-party platforms and viewing publishing history or operational analytics.
+          Towkn is a software service for creating and storing social content, uploading media, coordinating workspace approvals, scheduling posts, connecting supported social accounts, submitting selected content to third-party platforms and viewing publishing history or operational analytics.
         </p>
         <p>
           Features may differ by account, provider, platform permissions or product stage. A feature shown as planned, experimental or “coming soon” is not part of the currently available service.
@@ -73,7 +73,7 @@ export default function TermsPage() {
           Scheduling records your requested publication time and queues work according to the service’s available workflow. Scheduled or immediate publishing is not guaranteed to occur at an exact time. Provider downtime, API limits, token expiry, connection changes, media processing, network failures and review requirements may delay or prevent publication.
         </p>
         <p>
-          You should review important posts on the destination platform. Do not rely on PostFlow as the only record of time-sensitive, regulated or legally required communications.
+          You should review important posts on the destination platform. Do not rely on Towkn as the only record of time-sensitive, regulated or legally required communications.
         </p>
       </PublicSection>
 
@@ -95,7 +95,7 @@ export default function TermsPage() {
         <p>
           We may restrict or suspend access where reasonably necessary to address suspected unauthorized access, prohibited use, threats to the service or other users, provider requirements, legal obligations, or material breach of these Terms. Where practical, we will provide notice and an opportunity to resolve the issue.
         </p>
-        <p>Provider account suspension does not necessarily suspend your PostFlow account, but it may make the affected connection unusable.</p>
+        <p>Provider account suspension does not necessarily suspend your Towkn account, but it may make the affected connection unusable.</p>
       </PublicSection>
 
       <PublicSection title="9. Our intellectual property">
@@ -164,4 +164,3 @@ export default function TermsPage() {
     </PublicPageShell>
   );
 }
-

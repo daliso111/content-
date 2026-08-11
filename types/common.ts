@@ -1,4 +1,4 @@
-/** The set of social platforms PostFlow can publish to. */
+/** The set of social platforms Towkn can publish to. */
 export type SocialPlatform =
   | "facebook"
   | "instagram"

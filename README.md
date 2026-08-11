@@ -1,8 +1,8 @@
-# PostFlow
+# Towkn
 
-A polished, responsive social-media automation and scheduling platform built for
-agencies and small businesses to plan, approve and publish content across
-multiple networks from one workspace.
+Towkn is a polished, responsive social-media automation and scheduling platform
+built for agencies and small businesses to plan, approve and publish content
+across multiple networks from one workspace.
 
 > **Backend Stage 3A (implemented locally):** Supabase Auth, the multi-tenant
 > PostgreSQL schema, private Storage, transactional post CRUD, secure Meta
@@ -10,8 +10,6 @@ multiple networks from one workspace.
 > Apply the outstanding migrations and deploy/configure the Edge Functions before
 > treating them as live. Provider analytics remain demo-only. Firebase serves the
 > static export.
-
-`PostFlow` is a temporary product name — see [Rebranding](#rebranding) to change it.
 
 ---
 
@@ -177,9 +175,9 @@ https://your-domain.example/update-password
 ```
 
 When **Confirm email** is enabled in Supabase, sign-up creates the account but
-does not create a session. PostFlow displays the submitted email address and
+does not create a session. Towkn displays the submitted email address and
 asks the user to confirm it before signing in. When confirmation is disabled,
-Supabase returns a session and PostFlow opens the dashboard immediately.
+Supabase returns a session and Towkn opens the dashboard immediately.
 
 ### Authentication flow
 
@@ -291,13 +289,13 @@ with 6 MB chunks, retry delays, resumable fingerprints, progress and cancel.
 - Owner, administrator and content manager roles may delete any unused media.
 - Designers may delete only their own unused media.
 - Approvers and viewers have read-only media access.
-- Anonymous users have no PostFlow Storage policies. Existing project-wide
+- Anonymous users have no Towkn Storage policies. Existing project-wide
   Storage grants are left unchanged so unrelated buckets are not disrupted.
 
 Signed URLs are temporary presentation data: they are never stored in
 PostgreSQL or `localStorage`. Each upload writes file metadata to
 `media_assets` only after the object succeeds. If metadata extraction or the
-database insert fails, PostFlow attempts to remove the new object. Deletion
+database insert fails, Towkn attempts to remove the new object. Deletion
 removes the object through the Storage API and then removes its metadata; a
 database trigger blocks metadata deletion while `post_media` links exist.
 Because Storage and PostgreSQL operations are not atomic, the interface reports
@@ -419,7 +417,7 @@ destinations connected by the same Meta user.
 1. Create or select a Meta developer application.
 2. Configure Facebook Login for Business or the currently supported Meta OAuth product.
 3. Add the deployed `meta-oauth-callback` Function URL as an exact OAuth redirect URI.
-4. Configure a public PostFlow privacy-policy URL.
+4. Configure the public Towkn privacy-policy URL.
 5. Configure public data-deletion instructions.
 6. Add development users, testers, Facebook Pages, and linked Instagram Professional accounts.
 7. Verify the scopes in `supabase/functions/_shared/meta-config.ts` against the current Meta documentation and app dashboard.
@@ -632,7 +630,7 @@ Administrators may manage only content managers, designers, approvers and
 viewers. Lower roles have read-only team visibility. PostgreSQL enforces this
 hierarchy even when a control is hidden in the interface.
 
-Existing confirmed PostFlow users receive an in-app invitation and accept it
+Existing confirmed Towkn users receive an in-app invitation and accept it
 while signed in. New users receive Supabase Auth's invitation email from the
 trusted `invite-workspace-member` Function. Only a SHA-256 hash is stored; the
 raw application token exists only while the Function builds the acceptance URL
@@ -658,7 +656,7 @@ SMS or push-notification preferences are claimed.
 
 The Stage 1B Auth bootstrap remains unchanged for signup reliability. A new
 user invited by email may therefore receive both a personal workspace and the
-invited workspace after acceptance. PostFlow never trusts client-controlled
+invited workspace after acceptance. Towkn never trusts client-controlled
 user metadata to select an invitation.
 
 ### Deploy Stage 3B
@@ -709,7 +707,7 @@ retention jobs remain deferred.
 ## Stage 4A operational analytics
 
 The Analytics page reads one workspace-scoped aggregate from
-`get_operational_analytics`. It reports PostFlow's own posts and publishing
+`get_operational_analytics`. It reports Towkn's own posts and publishing
 records; it does not claim Meta reach, impressions, engagement or audience
 insights. Filters support 7, 30 and 90 day periods, a custom period of up to
 366 days, and Facebook or Instagram. Campaign filtering remains disabled
@@ -782,8 +780,8 @@ npm install -g firebase-tools
 firebase login
 ```
 
-Edit [`.firebaserc`](./.firebaserc) and replace `postflow-demo` with your real
-Firebase project ID (or run `firebase use --add`).
+Confirm [`.firebaserc`](./.firebaserc) points to the intended Towkn Firebase
+project ID (or run `firebase use --add`).
 
 **Build & deploy**
 
@@ -797,7 +795,7 @@ directory with `cleanUrls` and long-cache headers for static assets.
 
 ---
 
-## Rebranding
+## Branding
 
 The product name and logo are centralised:
 

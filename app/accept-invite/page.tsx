@@ -64,7 +64,7 @@ function AcceptInviteContent() {
     {details?.message && <p className="mt-4 border-l-2 border-brand pl-3 text-sm text-ink-muted">{details.message}</p>}
     {terminal ? <div className="mt-6"><CheckCircle2 className="mx-auto h-6 w-6 text-success" /><p className="mt-2 text-sm font-medium capitalize text-ink">Invitation {details?.status}</p></div>
       : <><p className="mt-4 text-xs text-ink-subtle">Expires {details?.expiresAt ? new Date(details.expiresAt).toLocaleString() : "soon"}</p>
-        {needsPassword && <FormField label="Create your PostFlow password" htmlFor="invite-password" hint="At least 8 characters"><Input id="invite-password" type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} /></FormField>}
+        {needsPassword && <FormField label="Create your Towkn password" htmlFor="invite-password" hint="At least 8 characters"><Input id="invite-password" type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} /></FormField>}
         {error && <p className="mt-4 text-sm text-danger">{error}</p>}
         <div className="mt-6 flex justify-center gap-3"><Button variant="outline" onClick={() => void decline()} loading={working}>Decline</Button><Button onClick={() => void accept()} loading={working}><CheckCircle2 className="h-4 w-4" /> Accept invitation</Button></div></>}
   </InviteShell>;

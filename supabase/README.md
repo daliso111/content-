@@ -1,7 +1,7 @@
-# PostFlow Supabase
+# Towkn Supabase
 
 This directory contains the local Supabase configuration, database migrations,
-and verification SQL for PostFlow. Firebase remains the static frontend host;
+and verification SQL for Towkn. Firebase remains the static frontend host;
 Supabase provides authentication, PostgreSQL and private media Storage.
 
 ## Stage 1B migration
@@ -345,7 +345,7 @@ membership, accepts a maximum 366-day half-open UTC range, validates the IANA
 timezone, and returns one JSON aggregate for the dashboard. Anonymous and
 direct public execution remain denied.
 
-The aggregate contains PostFlow operational data only: post volume and its
+The aggregate contains Towkn operational data only: post volume and its
 equal prior period, terminal and active publishing-job counts, retries,
 attempt failures, platform and media-type distributions, success time series,
 weekday completion counts, publishing-delay statistics, schedule consistency

@@ -7,7 +7,7 @@ GET  https://media.towkn.com/media/<SIGNED_TOKEN>
 HEAD https://media.towkn.com/media/<SIGNED_TOKEN>
 ```
 
-It forwards the same token to the fixed PostFlow Supabase Edge Function:
+It forwards the same token to the fixed Towkn Supabase Edge Function:
 
 ```text
 https://flipkskpaepmdvoypqca.supabase.co/functions/v1/tiktok-media/media/<SIGNED_TOKEN>

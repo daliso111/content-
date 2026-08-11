@@ -31,7 +31,7 @@ export function AuthLayout({
             <div className="mt-8">{children}</div>
           </div>
           <p className="text-center text-xs text-ink-subtle">
-            © 2026 PostFlow · Demo build with sample data
+            © 2026 Towkn · Demo build with sample data
           </p>
         </div>
       </div>
@@ -41,7 +41,7 @@ export function AuthLayout({
         <div className="absolute inset-0 bg-gradient-to-br from-brand to-brand-hover" />
         <div className="relative flex h-full flex-col justify-center px-14 text-white">
           <blockquote className="text-2xl font-semibold leading-snug">
-            “PostFlow replaced three tools and a very messy spreadsheet. Our
+            “Towkn replaced three tools and a very messy spreadsheet. Our
             approvals finally happen on time.”
           </blockquote>
           <p className="mt-5 text-sm text-white/70">

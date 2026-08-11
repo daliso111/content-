@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Analytics"
-        description="Operational publishing performance from PostFlow records."
+        description="Operational publishing performance from Towkn records."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <FilterSelect
@@ -236,7 +236,7 @@ export default function AnalyticsPage() {
       <div className="flex items-start gap-3 rounded-xl border border-info/20 bg-info-soft px-4 py-3 text-sm text-info">
         <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
         <p>
-          Connect platform insights to unlock reach, engagement and audience analytics. Operational publishing analytics below are based on PostFlow records.
+          Connect platform insights to unlock reach, engagement and audience analytics. Operational publishing analytics below are based on Towkn records.
         </p>
       </div>
 

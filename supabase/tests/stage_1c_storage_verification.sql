@@ -1,4 +1,4 @@
--- PostFlow Stage 1C Storage verification
+-- Towkn Stage 1C Storage verification
 -- Run sections separately in the SQL Editor. Do not add real identifiers here.
 
 -- 1. Bucket configuration. Expect one private row, 52428800 bytes, and all nine MIME types.
@@ -33,7 +33,7 @@ where schemaname = 'storage'
   and policyname like 'postflow_media_%'
 order by cmd, policyname;
 
--- 4. Anonymous policy audit. Expect no rows for a dedicated PostFlow project.
+-- 4. Anonymous policy audit. Expect no rows for a dedicated Towkn project.
 -- If the project has policies for other buckets, inspect every returned row and
 -- confirm neither its USING nor WITH CHECK expression permits postflow-media.
 select
@@ -48,7 +48,7 @@ where schemaname = 'storage'
   and roles && array['anon', 'public']::name[]
 order by policyname;
 
--- Every value should be true: PostFlow policies target authenticated only.
+-- Every value should be true: Towkn policies target authenticated only.
 select
   policyname,
   roles = array['authenticated']::name[] as authenticated_only
@@ -58,7 +58,7 @@ where schemaname = 'storage'
   and policyname like 'postflow_media_%'
 order by policyname;
 
--- 5. UPDATE audit. Expect no PostFlow UPDATE policy.
+-- 5. UPDATE audit. Expect no Towkn UPDATE policy.
 select count(*) = 0 as no_postflow_update_policy
 from pg_policies
 where schemaname = 'storage'
