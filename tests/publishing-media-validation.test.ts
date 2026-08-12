@@ -33,10 +33,33 @@ test("Facebook accepts text-only content and its supported single-media operatio
   assert.equal(validatePublishingMediaForPlatform("facebook", [video()]), null);
 });
 
+test("Facebook rejects a portrait Reel longer than 60 seconds", () => {
+  assert.equal(
+    validatePublishingMediaForPlatform("facebook", [
+      videoWithDuration(84),
+    ]),
+    "FACEBOOK_MEDIA_UNSUPPORTED",
+  );
+});
+
 test("Instagram reports missing required media", () => {
   assert.equal(
     validatePublishingMediaForPlatform("instagram", []),
     "INSTAGRAM_MEDIA_REQUIRED",
+  );
+});
+
+test("Instagram accepts an 84-second portrait Reel", () => {
+  assert.equal(
+    validatePublishingMediaForPlatform("instagram", [videoWithDuration(84)]),
+    null,
+  );
+});
+
+test("Instagram rejects a Reel longer than 15 minutes", () => {
+  assert.equal(
+    validatePublishingMediaForPlatform("instagram", [videoWithDuration(901)]),
+    "INSTAGRAM_MEDIA_UNSUPPORTED",
   );
 });
 
@@ -86,3 +109,7 @@ test("mixed Facebook and TikTok validation identifies TikTok", () => {
     "TIKTOK_VIDEO_REQUIRED",
   );
 });
+
+function videoWithDuration(durationSeconds: number): MediaAssetPresentation {
+  return media("video", "video/mp4", { duration_seconds: durationSeconds });
+}
