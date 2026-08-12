@@ -37,18 +37,28 @@ function isImage(asset: Asset): boolean {
     META_IMAGE_MIME_TYPES.includes(asset.mime_type ?? "");
 }
 
-function isMetaReel(asset: Asset): boolean {
+function isPortraitMetaVideo(asset: Asset): boolean {
   if (asset.media_type !== "video" || !META_REEL_MIME_TYPES.includes(asset.mime_type ?? "")) {
-    return false;
-  }
-  if (
-    asset.duration_seconds !== null &&
-    (asset.duration_seconds < 3 || asset.duration_seconds > 900)
-  ) {
     return false;
   }
   return !(
     asset.width !== null && asset.height !== null && asset.height <= asset.width
+  );
+}
+
+function isFacebookReel(asset: Asset): boolean {
+  if (!isPortraitMetaVideo(asset)) return false;
+  return !(
+    asset.duration_seconds !== null &&
+    (asset.duration_seconds < 4 || asset.duration_seconds > 60)
+  );
+}
+
+function isInstagramReel(asset: Asset): boolean {
+  if (!isPortraitMetaVideo(asset)) return false;
+  return !(
+    asset.duration_seconds !== null &&
+    (asset.duration_seconds < 3 || asset.duration_seconds > 900)
   );
 }
 
@@ -85,7 +95,7 @@ export function validatePublishingMediaForPlatform(
   if (platform === "facebook") {
     if (media.length === 0) return null;
     if (media.length !== 1) return "FACEBOOK_MEDIA_UNSUPPORTED";
-    return isImage(media[0].asset) || isMetaReel(media[0].asset)
+    return isImage(media[0].asset) || isFacebookReel(media[0].asset)
       ? null
       : "FACEBOOK_MEDIA_UNSUPPORTED";
   }
@@ -93,7 +103,7 @@ export function validatePublishingMediaForPlatform(
   if (platform === "instagram") {
     if (media.length === 0) return "INSTAGRAM_MEDIA_REQUIRED";
     if (media.length !== 1) return "INSTAGRAM_MEDIA_UNSUPPORTED";
-    return isInstagramImage(media[0].asset) || isMetaReel(media[0].asset)
+    return isInstagramImage(media[0].asset) || isInstagramReel(media[0].asset)
       ? null
       : "INSTAGRAM_MEDIA_UNSUPPORTED";
   }
