@@ -38,7 +38,7 @@ export function getYouTubeConfig(): YouTubeConfig {
 
 export function getYouTubeAppUrl(): URL {
   try {
-    const appUrl = new URL(required("POSTFLOW_APP_URL"));
+    const appUrl = new URL(required("TOWKN_APP_URL"));
     if (!["http:", "https:"].includes(appUrl.protocol)) throw new Error();
     if (!allowedOrigins().has(appUrl.origin)) throw new Error();
     return appUrl;

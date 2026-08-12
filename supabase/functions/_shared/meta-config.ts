@@ -45,7 +45,7 @@ export function getMetaConfig(): MetaConfig {
   }
   try {
     const redirectUri = new URL(required("META_OAUTH_REDIRECT_URI"));
-    const appUrl = new URL(required("POSTFLOW_APP_URL"));
+    const appUrl = new URL(required("TOWKN_APP_URL"));
     if (redirectUri.protocol !== "https:" || !["http:", "https:"].includes(appUrl.protocol)) {
       throw new Error();
     }
