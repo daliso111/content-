@@ -43,7 +43,7 @@ function isMetaReel(asset: Asset): boolean {
   }
   if (
     asset.duration_seconds !== null &&
-    (asset.duration_seconds < 4 || asset.duration_seconds > 60)
+    (asset.duration_seconds < 3 || asset.duration_seconds > 900)
   ) {
     return false;
   }
